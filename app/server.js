@@ -1,4 +1,3 @@
-let axios = require("axios");
 let express = require("express");
 let app = express();
 let apiFile = require("../env.json");
