@@ -45,8 +45,10 @@ function createMovieCard(movie) {
     img.src = `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
     img.alt = `${movie.title} poster`;
 
-    let title = document.createElement('h2');
+    let title = document.createElement('a');
     title.textContent = movie.title;
+    title.href = `movie.html?id=${movie.id}`;
+    title.className = 'movie-title';
 
     let releaseDate = document.createElement('p');
     releaseDate.textContent = `Release Date: ${movie.release_date}`;
