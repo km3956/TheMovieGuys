@@ -15,3 +15,7 @@ app.listen(port, hostname, () => {
 app.get('/env.json', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'env.json'));
 });
+
+app.post('/login', (req, res) => {
+
+});
