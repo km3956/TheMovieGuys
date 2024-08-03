@@ -2,25 +2,25 @@
 <html>
     <head>
         <title>Sign In</title>
-        <link ref="stylesheet" href="style.css">
+        <link rel="stylesheet" href="login.css">
     </head>
     <body>
-        <h1>The Movie Guys</h1>
-        <h3>Enter login credentials</h3>
+        <div class="logo">
+            <h1>The Movie Guys</h1>
+        </div>
         <div class="login-form">
+            <h2>Sign In</h2>
             <form>
                 <label for="username">Username:</label>
                 <input id="username" type="text" name="username" placeholder="Enter username here">
                 <label for="password">Password:</label>
                 <input id="password" type="text" name="password" placeholder="Enter password here">
                 <div class="login-submit">
-                    <button id="login">Submit</button>
-                </div>
-                <div class="create-account">
-                    Not registered for an account?
-                    <a href="#create-account">Create an account here</a>
+                    <button id="login">Sign in</button>
                 </div>
             </form>
+            <h4>Not registered for an account?</h4>
+            <button id="create-account">Register here</button>
         </div>
         <script type="module" src="login.js"></script>
     </body>
