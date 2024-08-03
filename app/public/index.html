@@ -6,19 +6,26 @@
 </head>
 <body>
     <h1>Our website logo will go here.</h1>
-    <div class="topnav">
-        <a class="active" href="#home">Home</a>
-        <a href="#about">About</a>
-        <a href="#contact">Contact</a>
-        <div class="search-container">
-          <form action="/action_page.php">
-            <input type="text" placeholder="Search.." name="search">
-            <button type="submit"><i class="fa fa-search"></i></button>
-          </form>
-        </div>
+    <div class="container">
+      <div class="topnav">
+          <a class="active" href="#home">Home</a>
+          <a href="#about">Top Movies</a>
+          <a href="#contact">Now Playing</a>
+          <a href="#watchlist">Your Watchlist</a>
+          <a href="#youraccount">Your Account</a>
+          <a href="#login">Sign In</a>
+          <div class="search-container">
+            <form action="/action_page.php">
+              <input type="text" placeholder="Search.." name="search">
+              <button type="submit"><i class="fa fa-search"></i></button>
+            </form>
+          </div>
+      </div>
     </div>
     <h2>New Releases!</h2>
-    <script src="index.js"></script>
-    <p>Movies go here<p>
+    <div class="container">
+      <div id="movies-container" class="movies-container"></div>
+    </div>
+    <script type="module" src="index.js"></script>
 </body>
 </html>
