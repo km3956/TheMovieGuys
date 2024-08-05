@@ -6,9 +6,6 @@ let baseUrl = env["api_url"];
 let port = 3000;
 let hostname = "localhost";
 let path = require("path");
-<<<<<<< HEAD
-app.use(express.static("public"));
-=======
 
 let pg = require("pg");
 let Pool = pg.Pool;
@@ -19,7 +16,6 @@ pool.connect().then(function () {
 
 app.use(express.static("public"));
 app.use(express.json());
->>>>>>> 598f79cb5962df6a69f5f8127c776ddd093adad4
 
 app.listen(port, hostname, () => {
     console.log(`http://${hostname}:${port}`);
@@ -27,8 +23,6 @@ app.listen(port, hostname, () => {
 
 app.get('/env.json', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'env.json'));
-<<<<<<< HEAD
-=======
 });
 
 app.post('/login', (req, res) => {
@@ -73,5 +67,4 @@ app.post('/login', (req, res) => {
       }
     }
   });
->>>>>>> 598f79cb5962df6a69f5f8127c776ddd093adad4
 });
