@@ -156,3 +156,31 @@ app.post('/login', async (req, res) => {
   tokenStorage[token] = username;
   return res.cookie("token", token, cookieOptions).send("Login successful");
 });
+
+// for reviews on movie landing page
+async function getMovieReviews(movieId) {
+  try {
+      let result = await pool.query(`
+          SELECT r.id, a.username AS author, r.rating, r.comment
+          FROM reviews r
+          JOIN accounts a ON r.account_id = a.id
+          WHERE r.movie_id = $1`, [movieId]);
+        return result.rows;
+    } catch (error) {
+        console.error('Error fetching reviews:', error);
+        throw error;
+    }
+    
+}
+app.get('/movie', async (req, res) => {
+  let movieId = req.query.id;
+  if (!movieId) {
+      return res.status(400).send("Movie ID is required");
+  }
+  try {
+      let reviews = await getMovieReviews(movieId);
+      res.json(reviews);
+  } catch (error) {
+      res.status(500).send("Error fetching reviews");
+  }
+});

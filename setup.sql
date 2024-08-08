@@ -64,23 +64,23 @@ INSERT INTO friends (follower_id, following_id) VALUES (4, 1);
 -- no friends for user 5 for testing
 
 -- add reviews from user1
-INSERT INTO reviews (movie_id, account_id, rating, comment) VALUES (100, 1, 3.6, 'This movie was overall mediocre');
+INSERT INTO reviews (movie_id, account_id, rating, comment) VALUES (533535, 1, 3.6, 'This movie was overall mediocre');
 INSERT INTO reviews (movie_id, account_id, rating, comment) VALUES (200, 1, 4.8, 'Best cinematography I''ve ever seen');
 
 -- add reviews from user2
-INSERT INTO reviews (movie_id, account_id, rating, comment) VALUES (100, 2, 2.1, 'Very boring movie');
+INSERT INTO reviews (movie_id, account_id, rating, comment) VALUES (533535, 2, 2.1, 'Very boring movie');
 INSERT INTO reviews (movie_id, account_id, rating, comment) VALUES (200, 2, 1.0, 'Worst movie I''ve ever seen');
 
 -- add reviews from user3
-INSERT INTO reviews (movie_id, account_id, rating, comment) VALUES (100, 3, 5.0, 'No better movie exists');
+INSERT INTO reviews (movie_id, account_id, rating, comment) VALUES (533535, 3, 5.0, 'No better movie exists');
 INSERT INTO reviews (movie_id, account_id, rating, comment) VALUES (200, 3, 2.4, 'I fell asleep while watching');
 
 -- add reviews from user4
-INSERT INTO reviews (movie_id, account_id, rating, comment) VALUES (100, 4, 3.9, 'A solid movie');
+INSERT INTO reviews (movie_id, account_id, rating, comment) VALUES (533535, 4, 3.9, 'A solid movie');
 INSERT INTO reviews (movie_id, account_id, rating, comment) VALUES (200, 4, 4.5, 'It was nearly perfect');
 
 -- add reviews from user5
-INSERT INTO reviews (movie_id, account_id, rating, comment) VALUES (100, 5, 3.0, 'Not my favorite, but still decent');
+INSERT INTO reviews (movie_id, account_id, rating, comment) VALUES (533535, 5, 3.0, 'Not my favorite, but still decent');
 INSERT INTO reviews (movie_id, account_id, rating, comment) VALUES (200, 5, 3.1, 'Good, but I probably wouldn''t watch it again');
 
 -- add queued movies for user1
