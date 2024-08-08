@@ -2,7 +2,7 @@
 <html>
 <head>
     <link rel="stylesheet" href="style.css">
-    <title>The Movie Guys</title>
+    <title>TV Details</title>
 </head>
 <body>
     <h1>Our website logo will go here.</h1>
@@ -13,7 +13,7 @@
           <a href="#contact">Now Playing</a>
           <a href="#watchlist">Your Watchlist</a>
           <a href="#youraccount">Your Account</a>
-          <a href="../login.html">Sign In</a>
+          <a href="#login">Sign In</a>
           <div class="search-container">
             <form action="/action_page.php">
               <input type="text" placeholder="Search.." name="search">
@@ -22,22 +22,7 @@
           </div>
       </div>
     </div>
-    <h2>New Releases</h2>
-    <div class="container">
-      <div id="new-movies-container" class="media-container"></div>
-    </div>
-    <h2>Top Movies</h2>
-    <div class="container">
-      <div id="top-movies-container" class="media-container"></div>
-    </div>
-    <h2>Upcoming Releases</h2>
-    <div class="container">
-      <div id="upcoming-movies-container" class="media-container"></div>
-    </div>
-    <h2>Trending TV Shows</h2>
-    <div class="container">
-      <div id="tv-shows-container" class="media-container"></div>
-    </div>
-    <script type="module" src="index.js"></script>
+    <div id="tv-details" class="tv-details"></div>
+    <script type="module" src="tv.js"></script>
 </body>
 </html>

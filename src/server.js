@@ -172,6 +172,7 @@ async function getMovieReviews(movieId) {
     }
     
 }
+
 app.get('/movie', async (req, res) => {
   let movieId = req.query.id;
   if (!movieId) {
@@ -179,6 +180,34 @@ app.get('/movie', async (req, res) => {
   }
   try {
       let reviews = await getMovieReviews(movieId);
+      res.json(reviews);
+  } catch (error) {
+      res.status(500).send("Error fetching reviews");
+  }
+});
+
+async function getTVReviews(tvID) {
+  try {
+      let result = await pool.query(`
+          SELECT r.id, a.username AS author, r.rating, r.comment
+          FROM reviews r
+          JOIN accounts a ON r.account_id = a.id
+          WHERE r.tv_id = $1`, [tvID]);
+        return result.rows;
+    } catch (error) {
+        console.error('Error fetching reviews:', error);
+        throw error;
+    }
+    
+}
+
+app.get('/tv', async (req, res) => {
+  let tv = req.query.id;
+  if (!tv) {
+      return res.status(400).send("TV ID is required");
+  }
+  try {
+      let reviews = await getTVReviews(tv);
       res.json(reviews);
   } catch (error) {
       res.status(500).send("Error fetching reviews");
