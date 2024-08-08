@@ -1,7 +1,9 @@
 {
   "scripts": {
     "start": "cd src; node server.js",
-    "setup": "psql -U postgres -f setup.sql"
+    "setup": "psql -U postgres -f setup.sql",
+    "predev": "npm list -g nodemon || npm install -g nodemon",
+    "dev": "nodemon server.js"
   },
   "dependencies": {
     "argon2": "^0.40.3",
