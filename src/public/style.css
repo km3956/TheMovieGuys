@@ -147,3 +147,45 @@ body {
 .movie-info {
   flex: 1;
 }
+
+.cast-section {
+  margin-top: 20px;
+}
+
+.cast-row {
+  display: flex;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 10px 0;
+}
+
+.cast-item {
+  flex: 0 0 auto;
+  width: 150px; 
+  text-align: center;
+  margin-right: 15px;
+}
+
+.cast-image {
+  width: 100%;
+  height: 150px; 
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.cast-item p {
+  margin: 5px 0; 
+  font-size: 14px;
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+  white-space: normal;
+  line-height: 1.2; 
+}
+
+.cast-item .cast-name {
+  font-weight: bold; 
+}
+
+.cast-item .cast-character {
+  color: gray;
+}
