@@ -20,7 +20,8 @@ loginForm.addEventListener("submit", (event) => {
             case "Login successful":
                 location.href = "./index.html";
                 break;
-            case "Account not found" || "Incorrect password":
+            case "Account not found":
+            case "Incorrect password":
                 message.textContent = "Incorrect username or password";
                 usernameInput.value="";
                 passwordInput.value="";
