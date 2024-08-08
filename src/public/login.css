@@ -22,6 +22,14 @@ h2 {
     background-color: azure;
 }
 
+.create-block {
+    border: 1px, solid;
+    border-radius: 15px;
+    padding: 15px;
+    width: 35%;
+    background-color: azure;
+}
+
 form {
     display: grid;
 }
@@ -37,6 +45,11 @@ input {
     width: 100%;
     padding: 10px;
     box-sizing: border-box;
+}
+
+#message {
+    font-size: x-large;
+    margin-top: 10px;
 }
 
 button {
@@ -56,6 +69,11 @@ button {
 }
 
 .login-submit {
+    display: flex;
+    align-items: center;
+}
+
+.create-submit {
     display: flex;
     align-items: center;
 }
