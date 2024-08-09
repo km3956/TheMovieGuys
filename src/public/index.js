@@ -186,4 +186,4 @@ function createCarouselNav(direction, id) {
     button.appendChild(text);
     
     return button;
-    }
+}
