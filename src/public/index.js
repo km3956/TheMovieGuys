@@ -77,19 +77,53 @@ async function fetchTopShows(config) {
 
 function displayResults(results, containerId) {
     let cardContainer = document.getElementById(containerId);
-    cardContainer.textContent = '';
+    let carouselOuter = document.createElement("div");
+    let carouselInner = document.createElement("div");
+    let carouselID = "id" + (Math.floor(10000 + Math.random() * 90000)).toString();
+    
+    carouselOuter.className = "carousel carousel-light slide";
+    carouselOuter.setAttribute("id", carouselID);
+    carouselOuter.setAttribute("data-bs-interval", "false");
+    carouselInner.className = "carousel-inner";
 
-    results.forEach(result => {
+    const cardsPerSlide = 5;
+
+    results.forEach((result, index) => {
+        if (index % cardsPerSlide === 0) {
+            let carouselItem = document.createElement("div");
+            carouselItem.className = index===0 ? "carousel-item active" : "carousel-item";
+            carouselInner.appendChild(carouselItem);
+
+            let childRow = document.createElement("div");
+            childRow.className = "row";
+            carouselItem.appendChild(childRow);
+        }
+
         let card = createCard(result);
-        cardContainer.appendChild(card);
+        carouselInner.lastChild.firstChild.appendChild(card);
     });
+
+    carouselOuter.appendChild(carouselInner);
+
+    let carouselPrev = createCarouselNav("prev", carouselID);
+    let carouselNext = createCarouselNav("next", carouselID);
+
+    carouselOuter.appendChild(carouselPrev);
+    carouselOuter.appendChild(carouselNext);
+
+    cardContainer.appendChild(carouselOuter);    
 }
 
 function createCard(result) {
     let card = document.createElement('div');
-    card.className = "media-card"
+    card.className = "card card-media col-4 rounded";
+
+    let cardImgDiv = document.createElement('div');
+    cardImgDiv.className = "card-img-div";
 
     let img = document.createElement('img');
+    img.className = "card-img";
+
     img.src = `https://image.tmdb.org/t/p/w500${result.poster_path}`;
     img.alt = `${result.title} poster`;
 
@@ -104,6 +138,9 @@ function createCard(result) {
         title.className = 'tv-title';
     }
 
+    let cardText = document.createElement("div");
+    cardText.className = "card-text";
+
     let relevantDate = document.createElement('p');
     if(result.hasOwnProperty("release_date")) {
         relevantDate.textContent = `Release Date: ${result.release_date}`;
@@ -112,12 +149,41 @@ function createCard(result) {
     }
 
     let overview = document.createElement('p');
-    overview.textContent = result.overview;
+    if (result.overview.length > 100) {
+        var shortText = result.overview.substr(0, 120) + "...";
+        overview.textContent = shortText;
+    }
+    
+    cardText.append(title);
+    cardText.append(relevantDate);
+    cardText.append(overview);
 
-    card.appendChild(img);
-    card.appendChild(title);
-    card.appendChild(relevantDate);
-    card.appendChild(overview);
+    cardImgDiv.appendChild(img);
+    cardImgDiv.appendChild(cardText);
+
+    card.appendChild(cardImgDiv);
 
     return card;
 }
+
+function createCarouselNav(direction, id) {
+    let button = document.createElement("button");
+    let icon = document.createElement("span");
+    let text = document.createElement("span");
+    
+    button.className = `carousel-control-${direction}`;
+    button.setAttribute("type", "button");
+    button.setAttribute("data-bs-target", '#' + id);
+    button.setAttribute("data-bs-slide", direction);
+    
+    icon.className = `carousel-control-${direction}-icon`;
+    icon.setAttribute("aria-hidden", "true");
+    
+    text.className = "visually-hidden";
+    text.textContent = direction === "prev" ? "Previous" : "Next";
+    
+    button.appendChild(icon);
+    button.appendChild(text);
+    
+    return button;
+    }

@@ -7,6 +7,10 @@ let port = 3000;
 let hostname = "localhost";
 let path = require("path");
 
+app.use(
+  express.static(path.join(__dirname, "../node_modules/bootstrap/dist/"))
+);
+
 let argon2 = require("argon2");
 let cookieParser = require("cookie-parser");
 let cookieOptions = {
