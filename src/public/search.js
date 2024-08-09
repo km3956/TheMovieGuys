@@ -1,9 +1,21 @@
 document.addEventListener('DOMContentLoaded', () => {
+    let urlParams = new URLSearchParams(window.location.search);
+    let search = urlParams.get('search');
+    let type = urlParams.get('type');
+    console.log(search, type);
+
+    document.getElementById('search-query').textContent += search;
+
     fetchConfig().then(config => {
-        fetchNewestMovies(config);
-        fetchTopMovies(config);
-        fetchUpcomingMovies(config);
-        fetchTopShows(config);
+        if (type === 'movie') {
+            fetchMovies(config, search);
+        }
+        else if (type === 'tv') {
+            fetchShows(config, search);
+        }
+        else if (type === 'person') {
+            fetchPeopleQuery(config, search);
+        }
     });
 });
 
@@ -17,59 +29,31 @@ async function fetchConfig() {
     }
 }
 
-async function fetchNewestMovies(config) {
-    let { api_url, api_key } = config;
-    let newMovies = `${api_url}movie/now_playing?api_key=${api_key}&language=en-US&page=1`;
-    try {
-        let response = await fetch(newMovies);
-        let data = await response.json();
-        displayResults(data.results, "new-movies-container");
-    } catch (error) {
-        console.error('Error fetching newest movies:', error);
-    }
-}
-
-async function fetchTopMovies(config) {
-    let { api_url, api_key } = config;
-    let topMovies = `${api_url}movie/popular?api_key=${api_key}&language=en-US&page=1`;
-    try {
-        let response = await fetch(topMovies);
-        let data = await response.json();
-        displayResults(data.results, "top-movies-container");
-    } catch (error) {
-        console.error('Error fetching top movies:', error);
-    }
-}
-
-async function fetchUpcomingMovies(config) {
+async function fetchMovies(config, search) {
     let { api_url, api_key } = config;
     let currentDate = new Date();
     let allMovies = [];
     let data = {};
     for (let i = 1; i <= 10; i++) {
-        let upcomingMovies = `${api_url}movie/upcoming?api_key=${api_key}&language=en-US&page=${i}`;
+        let movies = `${api_url}search/movie?api_key=${api_key}&language=en-US&page=1&include_adult=true&query=${search}`;
         try {
-            let response = await fetch(upcomingMovies);
+            let response = await fetch(movies);
             data = await response.json();
             allMovies = allMovies.concat(data.results);
         } catch (error) {
             console.error('Error fetching upcoming movies:', error);
         }
     }
-    let upcomingMoviesFiltered = data.results.filter(movie => {
-        let releaseDate = new Date(movie.release_date);
-        return releaseDate > currentDate;
-    });
-    displayResults(upcomingMoviesFiltered, "upcoming-movies-container");
+    displayResults(allMovies, "results-container");
 }
 
-async function fetchTopShows(config) {
+async function fetchShows(config, search) {
     let { api_url, api_key } = config;
-    let topShows = `${api_url}tv/popular?api_key=${api_key}&language=en-US&page=1`;
+    let tvShows = `${api_url}search/tv?api_key=${api_key}&language=en-US&page=1&include_adult=true&query=${search}`;
     try {
-        let response = await fetch(topShows);
+        let response = await fetch(tvShows);
         let data = await response.json();
-        displayResults(data.results, "tv-shows-container");
+        displayResults(data.results, "results-container");
     } catch (error) {
         console.error('Error fetching top shows:', error);
     }
