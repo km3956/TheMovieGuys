@@ -1,0 +1,92 @@
+h1, h2, h3 {
+  color: white;
+}
+
+body {
+  padding-left: 5%;
+  padding-right: 5%;
+}
+
+.container {
+  margin: 0 auto;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem 0;
+}
+
+.card-media {
+  width: 2.2in;
+  position: relative;
+  padding: 0;
+  margin: .5rem;
+}
+
+.card-img-div {
+  position: relative;
+  padding: 0;
+  margin: 0;
+}
+
+.card-img {
+  width: 100%;
+  display: block;
+}
+
+.card-text {
+  display: none;
+  position: absolute;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 5%;
+  color: white;
+  padding: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: all 0.5s ease-in-out;
+}
+
+.card-img-div:hover .card-text {
+  display: block;
+}
+
+/* carousel */
+
+.carousel {
+  width: 100%;
+  max-width: 1200px;
+  margin: auto;
+  position: relative;
+}
+
+
+.carousel-control-prev, .carousel-control-next {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel-control-prev-icon, .carousel-control-next-icon {
+  width: 30px;
+  height: 30px;
+}
+
+.carousel-control-prev {
+  position: absolute;
+  left: -60px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.carousel-control-next {
+  position: absolute;
+  right: -60px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.row {
+  padding: 0%;
+  margin: 0;
+}
