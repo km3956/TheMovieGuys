@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "cd src; node server.js",
+    "start": "cd src && cross-env node server.js",
     "setup": "psql -U postgres -f setup.sql",
     "predev": "npm list -g nodemon || npm install -g nodemon",
     "dev": "nodemon server.js"
@@ -10,6 +10,7 @@
     "axios": "^1.7.2",
     "bootstrap": "^5.3.3",
     "cookie-parser": "^1.4.6",
+    "cross-env": "^7.0.3",
     "crypto": "^1.0.1",
     "express": "^4.19.2",
     "pg": "^8.12.0"
