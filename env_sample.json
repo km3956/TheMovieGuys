@@ -1,0 +1,12 @@
+{
+    "api_key": "api_key_here",
+    "api_url": "https://api.themoviedb.org/3/",
+    "api_read_token": "api_read_token_here",
+    "db": {
+        "user": "postgres",
+        "host": "localhost",
+        "database": "moviesite",
+        "password": "db_password_here",
+        "port": 5432
+    }
+}
