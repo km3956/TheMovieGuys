@@ -1,11 +1,20 @@
 let express = require("express");
 let app = express();
 let env = require("../env.json");
-let apiKey = env["api_key"];
-let baseUrl = env["api_url"];
 let port = 3000;
-let hostname = "localhost";
+let hostname;
+let databaseConfig;
 let path = require("path");
+process.chdir(__dirname);
+
+if (process.env.NODE_ENV == "production") {
+  hostname = "0.0.0.0";
+  databaseConfig = { connectionString: process.env.DATABASE_URL };
+} else {
+  hostname = "localhost";
+  let { PGUSER, PGPASSWORD, PGDATABASE, PGHOST, PGPORT } = process.env;
+  databaseConfig = { PGUSER, PGPASSWORD, PGDATABASE, PGHOST, PGPORT };
+}
 
 app.use(
   express.static(path.join(__dirname, "../node_modules/bootstrap/dist/")),
@@ -27,9 +36,9 @@ function generateToken() {
 
 let pg = require("pg");
 let Pool = pg.Pool;
-let pool = new Pool(env.db);
-pool.connect().then(function () {
-  console.log(`Connected to database ${env.db.database}`);
+let pool = new Pool(databaseConfig);
+pool.connect().then(() => {
+  console.log("Connected to db");
 });
 
 function validateCredentials(body) {

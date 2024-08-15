@@ -18,10 +18,14 @@ async function fetchConfig() {
 }
 
 async function fetchNewestMovies(config) {
-  let { api_url, api_key } = config;
-  let newMovies = `${api_url}movie/now_playing?api_key=${api_key}&language=en-US&page=1`;
+  let { api_url, api_read_token } = config;
+  let newMovies = `${api_url}movie/now_playing?language=en-US&page=1`;
   try {
-    let response = await fetch(newMovies);
+    let response = await fetch(newMovies, {
+      headers: {
+        Authorization: `Bearer ${api_read_token}`,
+      },
+    });
     let data = await response.json();
     displayResults(data.results, "new-movies-container");
   } catch (error) {
@@ -30,10 +34,14 @@ async function fetchNewestMovies(config) {
 }
 
 async function fetchTopMovies(config) {
-  let { api_url, api_key } = config;
-  let topMovies = `${api_url}movie/popular?api_key=${api_key}&language=en-US&page=1`;
+  let { api_url, api_read_token } = config;
+  let newMovies = `${api_url}movie/now_playing?language=en-US&page=1`;
   try {
-    let response = await fetch(topMovies);
+    let response = await fetch(newMovies, {
+      headers: {
+        Authorization: `Bearer ${api_read_token}`,
+      },
+    });
     let data = await response.json();
     displayResults(data.results, "top-movies-container");
   } catch (error) {
@@ -42,21 +50,24 @@ async function fetchTopMovies(config) {
 }
 
 async function fetchUpcomingMovies(config) {
-  let { api_url, api_key } = config;
+  let { api_url, api_read_token } = config;
   let currentDate = new Date();
   let allMovies = [];
-  let data = {};
   for (let i = 1; i <= 10; i++) {
-    let upcomingMovies = `${api_url}movie/upcoming?api_key=${api_key}&language=en-US&page=${i}`;
+    let upcomingMovies = `${api_url}movie/upcoming?language=en-US&page=${i}`;
     try {
-      let response = await fetch(upcomingMovies);
-      data = await response.json();
+      let response = await fetch(upcomingMovies, {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      });
+      let data = await response.json();
       allMovies = allMovies.concat(data.results);
     } catch (error) {
       console.error("Error fetching upcoming movies:", error);
     }
   }
-  let upcomingMoviesFiltered = data.results.filter((movie) => {
+  let upcomingMoviesFiltered = allMovies.filter((movie) => {
     let releaseDate = new Date(movie.release_date);
     return releaseDate > currentDate;
   });
@@ -64,10 +75,14 @@ async function fetchUpcomingMovies(config) {
 }
 
 async function fetchTopShows(config) {
-  let { api_url, api_key } = config;
-  let topShows = `${api_url}tv/popular?api_key=${api_key}&language=en-US&page=1`;
+  let { api_url, api_read_token } = config;
+  let topShows = `${api_url}tv/popular?language=en-US&page=1`;
   try {
-    let response = await fetch(topShows);
+    let response = await fetch(topShows, {
+      headers: {
+        Authorization: `Bearer ${api_read_token}`,
+      },
+    });
     let data = await response.json();
     displayResults(data.results, "tv-shows-container");
   } catch (error) {

@@ -28,14 +28,17 @@ async function fetchConfig() {
 }
 
 async function fetchMovies(config, search) {
-  let { api_url, api_key } = config;
-  let currentDate = new Date();
+  let { api_url, api_read_token } = config;
   let allMovies = [];
   let data = {};
   for (let i = 1; i <= 10; i++) {
-    let movies = `${api_url}search/movie?api_key=${api_key}&language=en-US&page=1&include_adult=true&query=${search}`;
+    let movies = `${api_url}search/movie?&language=en-US&page=1&include_adult=true&query=${search}`;
     try {
-      let response = await fetch(movies);
+      let response = await fetch(movies, {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      });
       data = await response.json();
       allMovies = allMovies.concat(data.results);
     } catch (error) {
@@ -46,10 +49,14 @@ async function fetchMovies(config, search) {
 }
 
 async function fetchShows(config, search) {
-  let { api_url, api_key } = config;
-  let tvShows = `${api_url}search/tv?api_key=${api_key}&language=en-US&page=1&include_adult=true&query=${search}`;
+  let { api_url, api_read_token } = config;
+  let tvShows = `${api_url}search/tv?&language=en-US&page=1&include_adult=true&query=${search}`;
   try {
-    let response = await fetch(tvShows);
+    let response = await fetch(tvShows, {
+      headers: {
+        Authorization: `Bearer ${api_read_token}`,
+      },
+    });
     let data = await response.json();
     displayResults(data.results, "results-container");
   } catch (error) {

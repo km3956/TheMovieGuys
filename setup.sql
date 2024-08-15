@@ -1,6 +1,6 @@
-DROP DATABASE IF EXISTS moviesite;
-CREATE DATABASE moviesite;
-\c moviesite
+DROP DATABASE IF EXISTS themovieguys;
+CREATE DATABASE themovieguys;
+\c themovieguys
 
 CREATE TABLE accounts (
 	id SERIAL PRIMARY KEY,
@@ -17,6 +17,7 @@ CREATE TABLE friends (
 CREATE TABLE reviews (
 	id SERIAL PRIMARY KEY,
 	movie_id INT,
+	tv_id INT,
 	account_id INT,
 	rating NUMERIC,
 	comment TEXT
@@ -25,6 +26,7 @@ CREATE TABLE reviews (
 CREATE TABLE queue (
 	id SERIAL PRIMARY KEY,
 	movie_id INT,
+	tv_id INT,
 	account_id INT,
 	status VARCHAR(8)
 );
@@ -32,6 +34,7 @@ CREATE TABLE queue (
 CREATE TABLE liked (
 	id SERIAL PRIMARY KEY,
 	movie_id INT,
+	tv_id INT,
 	account_id INT
 );
 
@@ -83,6 +86,26 @@ INSERT INTO reviews (movie_id, account_id, rating, comment) VALUES (200, 4, 4.5,
 INSERT INTO reviews (movie_id, account_id, rating, comment) VALUES (533535, 5, 3.0, 'Not my favorite, but still decent');
 INSERT INTO reviews (movie_id, account_id, rating, comment) VALUES (200, 5, 3.1, 'Good, but I probably wouldn''t watch it again');
 
+-- add reviews from user1 for tv
+INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES (3000, 1, 3.6, 'This tv show was overall mediocre');
+INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES (2000, 1, 4.8, 'Best cinematography I''ve ever seen');
+
+-- add reviews from user2 for tv
+INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES (3000, 2, 2.1, 'Very boring tv show');
+INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES (2000, 2, 1.0, 'Worst tv show I''ve ever seen');
+
+-- add reviews from user3 for tv
+INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES (3000, 3, 5.0, 'No better tv show exists');
+INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES (2000, 3, 2.4, 'I fell asleep while watching');
+
+-- add reviews from user4 for tv
+INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES (3000, 4, 3.9, 'A solid tv show');
+INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES (2000, 4, 4.5, 'It was nearly perfect');
+
+-- add reviews from user5 for tv
+INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES (3000, 5, 3.0, 'Not my favorite, but still decent');
+INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES (2000, 5, 3.1, 'Good, but I probably wouldn''t watch it again');
+
 -- add queued movies for user1
 INSERT INTO queue (movie_id, account_id, status) VALUES (100, 1, 'Watched');
 INSERT INTO queue (movie_id, account_id, status) VALUES (300, 1, 'Watching');
@@ -108,6 +131,31 @@ INSERT INTO queue (movie_id, account_id, status) VALUES (100, 5, 'Watched');
 INSERT INTO queue (movie_id, account_id, status) VALUES (400, 5, 'Watching');
 INSERT INTO queue (movie_id, account_id, status) VALUES (300, 5, 'Queue');
 
+-- add queued tv shows for user1
+INSERT INTO queue (tv_id, account_id, status) VALUES (1000, 1, 'Watched');
+INSERT INTO queue (tv_id, account_id, status) VALUES (3000, 1, 'Watching');
+INSERT INTO queue (tv_id, account_id, status) VALUES (4000, 1, 'Queue');
+
+-- add queued tv shows for user2
+INSERT INTO queue (tv_id, account_id, status) VALUES (1000, 2, 'Watched');
+INSERT INTO queue (tv_id, account_id, status) VALUES (2000, 2, 'Watched');
+INSERT INTO queue (tv_id, account_id, status) VALUES (3000, 2, 'Queue');
+
+-- add queued tv shows for user3
+INSERT INTO queue (tv_id, account_id, status) VALUES (1000, 3, 'Watched');
+INSERT INTO queue (tv_id, account_id, status) VALUES (6000, 3, 'Watching');
+INSERT INTO queue (tv_id, account_id, status) VALUES (3000, 3, 'Queue');
+
+-- add queued tv shows for user4
+INSERT INTO queue (tv_id, account_id, status) VALUES (1000, 4, 'Watched');
+INSERT INTO queue (tv_id, account_id, status) VALUES (4000, 4, 'Queue');
+INSERT INTO queue (tv_id, account_id, status) VALUES (5000, 4, 'Queue');
+
+-- add queued tv shows for user5
+INSERT INTO queue (tv_id, account_id, status) VALUES (1000, 5, 'Watched');
+INSERT INTO queue (tv_id, account_id, status) VALUES (4000, 5, 'Watching');
+INSERT INTO queue (tv_id, account_id, status) VALUES (3000, 5, 'Queue');
+
 -- add liked movies for user1
 INSERT INTO liked (movie_id, account_id) VALUES (100, 1);
 INSERT INTO liked (movie_id, account_id) VALUES (300, 1);
@@ -127,3 +175,23 @@ INSERT INTO liked (movie_id, account_id) VALUES (200, 4);
 -- add liked movies for user5
 INSERT INTO liked (movie_id, account_id) VALUES (200, 5);
 INSERT INTO liked (movie_id, account_id) VALUES (400, 5);
+
+-- add liked tv shows for user1
+INSERT INTO liked (tv_id, account_id) VALUES (1000, 1);
+INSERT INTO liked (tv_id, account_id) VALUES (3000, 1);
+
+-- add liked tv shows for user2
+INSERT INTO liked (tv_id, account_id) VALUES (2000, 2);
+INSERT INTO liked (tv_id, account_id) VALUES (3000, 2);
+
+-- add liked tv shows for user3
+INSERT INTO liked (tv_id, account_id) VALUES (1000, 3);
+INSERT INTO liked (tv_id, account_id) VALUES (6000, 3);
+
+-- add liked tv shows for user4
+INSERT INTO liked (tv_id, account_id) VALUES (1000, 4);
+INSERT INTO liked (tv_id, account_id) VALUES (2000, 4);
+
+-- add liked tv shows for user5
+INSERT INTO liked (tv_id, account_id) VALUES (2000, 5);
+INSERT INTO liked (tv_id, account_id) VALUES (4000, 5);
