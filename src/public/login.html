@@ -1,28 +1,38 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-    <head>
-        <title>Sign In</title>
-        <link rel="stylesheet" href="login.css">
-    </head>
-    <body>
-        <div class="logo">
-            <h1>The Movie Guys</h1>
+  <head>
+    <title>Sign In</title>
+    <link rel="stylesheet" href="login.css" />
+  </head>
+  <body>
+    <div class="logo">
+      <h1>The Movie Guys</h1>
+    </div>
+    <div class="login-block">
+      <h2>Sign In</h2>
+      <form id="login-form">
+        <label for="username">Username:</label>
+        <input
+          id="username"
+          type="text"
+          name="username"
+          placeholder="Enter username here"
+        />
+        <label for="password">Password:</label>
+        <input
+          id="password"
+          type="text"
+          name="password"
+          placeholder="Enter password here"
+        />
+        <div class="login-submit">
+          <button id="login">Sign in</button>
         </div>
-        <div class="login-block">
-            <h2>Sign In</h2>
-            <form id="login-form">
-                <label for="username">Username:</label>
-                <input id="username" type="text" name="username" placeholder="Enter username here">
-                <label for="password">Password:</label>
-                <input id="password" type="text" name="password" placeholder="Enter password here">
-                <div class="login-submit">
-                    <button id="login">Sign in</button>
-                </div>
-            </form>
-            <h4>Not registered for an account?</h4>
-            <button id="create-account">Register here</button>
-        </div>
-        <div id="message"></div>
-        <script src="login.js"></script>
-    </body>
+      </form>
+      <h4>Not registered for an account?</h4>
+      <button id="create-account">Register here</button>
+    </div>
+    <div id="message"></div>
+    <script src="login.js"></script>
+  </body>
 </html>
