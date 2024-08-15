@@ -1,14 +1,14 @@
 let express = require("express");
 let app = express();
 let env = require("../env.json");
-let apiKey = env["api_key"]; 
+let apiKey = env["api_key"];
 let baseUrl = env["api_url"];
 let port = 3000;
 let hostname = "localhost";
 let path = require("path");
 
 app.use(
-  express.static(path.join(__dirname, "../node_modules/bootstrap/dist/"))
+  express.static(path.join(__dirname, "../node_modules/bootstrap/dist/")),
 );
 
 let argon2 = require("argon2");
@@ -34,10 +34,7 @@ pool.connect().then(function () {
 
 function validateCredentials(body) {
   // body structure validation
-  if (
-    !body.hasOwnProperty("username") ||
-    !body.hasOwnProperty("password")
-  ) {
+  if (!body.hasOwnProperty("username") || !body.hasOwnProperty("password")) {
     return false;
   }
 
@@ -61,14 +58,14 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.listen(port, hostname, () => {
-    console.log(`http://${hostname}:${port}`);
+  console.log(`http://${hostname}:${port}`);
 });
 
-app.get('/env.json', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'env.json'));
+app.get("/env.json", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "env.json"));
 });
 
-app.post('/create', async (req, res) => {
+app.post("/create", async (req, res) => {
   let body = req.body;
   console.log(body);
 
@@ -81,7 +78,10 @@ app.post('/create', async (req, res) => {
   // check for username match
   let selectResult;
   try {
-    selectResult = await pool.query("SELECT id FROM accounts WHERE username = $1", [username]);
+    selectResult = await pool.query(
+      "SELECT id FROM accounts WHERE username = $1",
+      [username],
+    );
   } catch (error) {
     console.log("SELECT FAILED", error);
     return res.status(500).end();
@@ -103,7 +103,10 @@ app.post('/create', async (req, res) => {
   // insert new account into db
   let insertResult;
   try {
-    insertResult = await pool.query("INSERT INTO accounts (username, passhash) VALUES ($1, $2)", [username, passhash]);
+    insertResult = await pool.query(
+      "INSERT INTO accounts (username, passhash) VALUES ($1, $2)",
+      [username, passhash],
+    );
   } catch (error) {
     console.log("INSERT FAILED", error);
     res.status(500).end();
@@ -113,10 +116,12 @@ app.post('/create', async (req, res) => {
   let token = generateToken();
   console.log("Token: ", token);
   tokenStorage[token] = username;
-  return res.cookie("token", token, cookieOptions).send("Account creation successful");
+  return res
+    .cookie("token", token, cookieOptions)
+    .send("Account creation successful");
 });
 
-app.post('/login', async (req, res) => {
+app.post("/login", async (req, res) => {
   let body = req.body;
   console.log(body);
 
@@ -129,7 +134,10 @@ app.post('/login', async (req, res) => {
   // check for user account
   let result;
   try {
-    result = await pool.query("SELECT passhash FROM accounts WHERE username = $1", [username]);
+    result = await pool.query(
+      "SELECT passhash FROM accounts WHERE username = $1",
+      [username],
+    );
   } catch (error) {
     console.log("SELECT FAILED", error);
     return res.status(500).end();
@@ -164,7 +172,8 @@ app.post('/login', async (req, res) => {
 // for reviews on movie landing page
 async function getMovieReviews(movieId, username) {
   try {
-    let friendQuery = await pool.query(`
+    let friendQuery = await pool.query(
+      `
       SELECT r.id, a.username AS author, r.rating, r.comment 
       FROM reviews r 
       JOIN accounts a ON r.account_id = a.id 
@@ -178,9 +187,12 @@ async function getMovieReviews(movieId, username) {
             WHERE username = $2
           )
         )
-    `, [movieId, username]);
+    `,
+      [movieId, username],
+    );
 
-    let nonfriendQuery = await pool.query(`
+    let nonfriendQuery = await pool.query(
+      `
       SELECT r.id, a.username AS author, r.rating, r.comment 
       FROM reviews r 
       JOIN accounts a ON r.account_id = a.id 
@@ -194,88 +206,95 @@ async function getMovieReviews(movieId, username) {
             WHERE username = $2
           )
         )
-    `, [movieId, username]);
+    `,
+      [movieId, username],
+    );
 
     let result = friendQuery.rows.concat(nonfriendQuery.rows);
     return result;
-
   } catch (error) {
-    console.error('Error fetching reviews:', error);
+    console.error("Error fetching reviews:", error);
     throw error;
   }
 }
 
-app.get('/movie', async (req, res) => {
+app.get("/movie", async (req, res) => {
   let movieId = req.query.id;
   let username = "";
   if (tokenStorage[req.cookies.token]) {
     username = tokenStorage[req.cookies.token];
   }
   if (!movieId) {
-      return res.status(400).send("Movie ID is required");
+    return res.status(400).send("Movie ID is required");
   }
   try {
-      let reviews = await getMovieReviews(movieId, username);
-      res.json(reviews);
+    let reviews = await getMovieReviews(movieId, username);
+    res.json(reviews);
   } catch (error) {
-      res.status(500).send("Error fetching reviews");
+    res.status(500).send("Error fetching reviews");
   }
 });
 
-app.get('/check-login', (req, res) => {
+app.get("/check-login", (req, res) => {
   let token = req.cookies.token;
   if (token && tokenStorage[token]) {
-      res.sendStatus(200);
+    res.sendStatus(200);
   } else {
-      res.sendStatus(401);
+    res.sendStatus(401);
   }
 });
 
-app.post('/submit-review', async (req, res) => {
+app.post("/submit-review", async (req, res) => {
   let token = req.cookies.token;
   if (!token || !tokenStorage[token]) {
-      return res.status(401).send('User not logged in');
+    return res.status(401).send("User not logged in");
   }
 
   let username = tokenStorage[token];
   let { rating, comment, movieId } = req.body;
 
   try {
-      let userQuery = await pool.query("SELECT id FROM accounts WHERE username = $1", [username]);
-      let userId = userQuery.rows[0].id;
-      await pool.query("INSERT INTO reviews (movie_id, account_id, rating, comment) VALUES ($1, $2, $3, $4)", 
-          [movieId, userId, rating, comment]);
-      return res.status(200).send('Review submitted');
+    let userQuery = await pool.query(
+      "SELECT id FROM accounts WHERE username = $1",
+      [username],
+    );
+    let userId = userQuery.rows[0].id;
+    await pool.query(
+      "INSERT INTO reviews (movie_id, account_id, rating, comment) VALUES ($1, $2, $3, $4)",
+      [movieId, userId, rating, comment],
+    );
+    return res.status(200).send("Review submitted");
   } catch (error) {
-      return res.status(500).send('Error submitting review');
+    return res.status(500).send("Error submitting review");
   }
 });
 
-
 async function getTVReviews(tvID) {
   try {
-      let result = await pool.query(`
+    let result = await pool.query(
+      `
           SELECT r.id, a.username AS author, r.rating, r.comment
           FROM reviews r
           JOIN accounts a ON r.account_id = a.id
-          WHERE r.tv_id = $1`, [tvID]);
-        return result.rows;
-    } catch (error) {
-        console.error('Error fetching reviews:', error);
-        throw error;
-    }
-    
+          WHERE r.tv_id = $1`,
+      [tvID],
+    );
+    return result.rows;
+  } catch (error) {
+    console.error("Error fetching reviews:", error);
+    throw error;
+  }
 }
 
-app.get('/tv', async (req, res) => {
+app.get("/tv", async (req, res) => {
   let tv = req.query.id;
   if (!tv) {
-      return res.status(400).send("TV ID is required");
+    return res.status(400).send("TV ID is required");
   }
   try {
-      let reviews = await getTVReviews(tv);
-      res.json(reviews);
+    let reviews = await getTVReviews(tv);
+    res.json(reviews);
   } catch (error) {
-      res.status(500).send("Error fetching reviews");
+    res.status(500).send("Error fetching reviews");
   }
 });

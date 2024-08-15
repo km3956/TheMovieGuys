@@ -1,4 +1,6 @@
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   color: white;
 }
 
@@ -18,7 +20,7 @@ body {
   width: 2.2in;
   position: relative;
   padding: 0;
-  margin: .5rem;
+  margin: 0.5rem;
 }
 
 .card-img-div {
@@ -59,7 +61,8 @@ body {
   position: relative;
 }
 
-.carousel-control-prev, .carousel-control-next {
+.carousel-control-prev,
+.carousel-control-next {
   width: 50px;
   height: 50px;
   display: flex;
@@ -67,7 +70,8 @@ body {
   justify-content: center;
 }
 
-.carousel-control-prev-icon, .carousel-control-next-icon {
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
   width: 30px;
   height: 30px;
 }
@@ -98,7 +102,9 @@ body {
   padding-top: 20px;
 }
 
-.cast-name, .cast-character, .card-text {
+.cast-name,
+.cast-character,
+.card-text {
   color: white;
   text-align: center;
   font-size: 14px;
@@ -121,7 +127,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.8); 
+  background-color: rgba(0, 0, 0, 0.8);
   z-index: 1;
 }
 
@@ -154,7 +160,9 @@ body {
   padding: 15px;
   margin-bottom: 15px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-  transition: background-color 0.3s, box-shadow 0.3s;
+  transition:
+    background-color 0.3s,
+    box-shadow 0.3s;
 }
 
 .review-card:hover {
