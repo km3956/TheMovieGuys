@@ -198,7 +198,7 @@ async function getMovieReviews(movieId, username) {
 
     let result = friendQuery.rows.concat(nonfriendQuery.rows);
     return result;
-    
+
   } catch (error) {
     console.error('Error fetching reviews:', error);
     throw error;
@@ -221,6 +221,36 @@ app.get('/movie', async (req, res) => {
       res.status(500).send("Error fetching reviews");
   }
 });
+
+app.get('/check-login', (req, res) => {
+  let token = req.cookies.token;
+  if (token && tokenStorage[token]) {
+      res.sendStatus(200);
+  } else {
+      res.sendStatus(401);
+  }
+});
+
+app.post('/submit-review', async (req, res) => {
+  let token = req.cookies.token;
+  if (!token || !tokenStorage[token]) {
+      return res.status(401).send('User not logged in');
+  }
+
+  let username = tokenStorage[token];
+  let { rating, comment, movieId } = req.body;
+
+  try {
+      let userQuery = await pool.query("SELECT id FROM accounts WHERE username = $1", [username]);
+      let userId = userQuery.rows[0].id;
+      await pool.query("INSERT INTO reviews (movie_id, account_id, rating, comment) VALUES ($1, $2, $3, $4)", 
+          [movieId, userId, rating, comment]);
+      return res.status(200).send('Review submitted');
+  } catch (error) {
+      return res.status(500).send('Error submitting review');
+  }
+});
+
 
 async function getTVReviews(tvID) {
   try {

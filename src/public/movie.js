@@ -110,7 +110,7 @@ function createStarRating(rating) {
     let emptyStars = 5 - fullStars;
 
     for (let i = 0; i < fullStars; i++) {
-        const star = document.createElement('img');
+        let star = document.createElement('img');
         star.src = './images/full-star.png';
         star.alt = 'Full Star';
         star.className = 'star';
@@ -118,7 +118,7 @@ function createStarRating(rating) {
     }
 
     for (let i = 0; i < emptyStars; i++) {
-        const star = document.createElement('img');
+        let star = document.createElement('img');
         star.src = './images/empty-star.png';
         star.alt = 'Empty Star';
         star.className = 'star';
@@ -126,6 +126,95 @@ function createStarRating(rating) {
     }
 
     return starContainer;
+}
+
+function showRatingForm(movieId) {
+    let modal = document.createElement('div');
+    modal.className = 'modal';
+
+    let modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
+
+    let closeButton = document.createElement('span');
+    closeButton.className = 'close-button';
+    closeButton.textContent = '×';
+
+    let header = document.createElement('h2');
+    header.textContent = 'Rate this Movie';
+
+    let ratingLabel = document.createElement('label');
+    ratingLabel.setAttribute('for', 'rating');
+    ratingLabel.textContent = 'Rating (1-5 stars):';
+
+    let ratingInput = document.createElement('input');
+    ratingInput.type = 'number';
+    ratingInput.id = 'rating';
+    ratingInput.name = 'rating';
+    ratingInput.min = '1';
+    ratingInput.max = '5';
+    ratingInput.required = true;
+
+    let commentLabel = document.createElement('label');
+    commentLabel.setAttribute('for', 'comment');
+    commentLabel.textContent = 'Comment:';
+
+    let commentTextarea = document.createElement('textarea');
+    commentTextarea.id = 'comment';
+    commentTextarea.name = 'comment';
+    commentTextarea.required = true;
+
+    let submitButton = document.createElement('button');
+    submitButton.id = 'submit-review';
+    submitButton.textContent = 'Submit';
+
+    modalContent.appendChild(closeButton);
+    modalContent.appendChild(header);
+    modalContent.appendChild(ratingLabel);
+    modalContent.appendChild(ratingInput);
+    modalContent.appendChild(commentLabel);
+    modalContent.appendChild(commentTextarea);
+    modalContent.appendChild(submitButton);
+
+    modal.appendChild(modalContent);
+    document.body.appendChild(modal);
+
+    submitButton.addEventListener('click', async () => {
+        let rating = ratingInput.value;
+        let comment = commentTextarea.value;
+
+        let response = await fetch('/check-login', {
+            method: 'GET',
+            credentials: 'include'
+        });
+
+        if (response.ok) {
+            let reviewResponse = await fetch('/submit-review', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    rating: rating,
+                    comment: comment,
+                    movieId: movieId
+                })
+            });
+
+            if (reviewResponse.ok) {
+                alert('Review submitted successfully!');
+                modal.remove(); 
+            } else {
+                alert('Error submitting review. Please try again later.');
+            }
+        } else {
+            alert('You need to log in to rate this movie.');
+        }
+    });
+
+    closeButton.addEventListener('click', () => {
+        console.log("Close button clicked");
+        modal.remove();
+    });
 }
 
 function createMovieDetails(movie, providerData, castData, reviewsData) {
@@ -155,6 +244,10 @@ function createMovieDetails(movie, providerData, castData, reviewsData) {
 
     controls.appendChild(dropdown);
     controls.appendChild(rateButton);
+
+    rateButton.addEventListener('click', () => {
+        showRatingForm(movie.id);
+    });
 
     buttonRow.appendChild(controls);
 
