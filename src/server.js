@@ -15,8 +15,8 @@ let argon2 = require("argon2");
 let cookieParser = require("cookie-parser");
 let cookieOptions = {
   httpOnly: true,
-  secure: true,
-  smaeSite: "strict",
+  secure: false,
+  sameSite: "strict",
 };
 
 let tokenStorage = {};
@@ -162,28 +162,60 @@ app.post('/login', async (req, res) => {
 });
 
 // for reviews on movie landing page
-async function getMovieReviews(movieId) {
+async function getMovieReviews(movieId, username) {
   try {
-      let result = await pool.query(`
-          SELECT r.id, a.username AS author, r.rating, r.comment
-          FROM reviews r
-          JOIN accounts a ON r.account_id = a.id
-          WHERE r.movie_id = $1`, [movieId]);
-        return result.rows;
-    } catch (error) {
-        console.error('Error fetching reviews:', error);
-        throw error;
-    }
+    let friendQuery = await pool.query(`
+      SELECT r.id, a.username AS author, r.rating, r.comment 
+      FROM reviews r 
+      JOIN accounts a ON r.account_id = a.id 
+      WHERE r.movie_id = $1
+        AND r.account_id IN (
+          SELECT following_id 
+          FROM friends 
+          WHERE follower_id = (
+            SELECT id 
+            FROM accounts 
+            WHERE username = $2
+          )
+        )
+    `, [movieId, username]);
+
+    let nonfriendQuery = await pool.query(`
+      SELECT r.id, a.username AS author, r.rating, r.comment 
+      FROM reviews r 
+      JOIN accounts a ON r.account_id = a.id 
+      WHERE r.movie_id = $1
+        AND r.account_id NOT IN (
+          SELECT following_id 
+          FROM friends 
+          WHERE follower_id = (
+            SELECT id 
+            FROM accounts 
+            WHERE username = $2
+          )
+        )
+    `, [movieId, username]);
+
+    let result = friendQuery.rows.concat(nonfriendQuery.rows);
+    return result;
     
+  } catch (error) {
+    console.error('Error fetching reviews:', error);
+    throw error;
+  }
 }
 
 app.get('/movie', async (req, res) => {
   let movieId = req.query.id;
+  let username = "";
+  if (tokenStorage[req.cookies.token]) {
+    username = tokenStorage[req.cookies.token];
+  }
   if (!movieId) {
       return res.status(400).send("Movie ID is required");
   }
   try {
-      let reviews = await getMovieReviews(movieId);
+      let reviews = await getMovieReviews(movieId, username);
       res.json(reviews);
   } catch (error) {
       res.status(500).send("Error fetching reviews");

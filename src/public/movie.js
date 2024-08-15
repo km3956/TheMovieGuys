@@ -63,7 +63,6 @@ function createCastCard(castMember) {
 
     let castName = document.createElement('p');
     castName.textContent = castMember.name;
-    console.log(castMember.name);
     castName.className = 'cast-name';
 
     let castCharacter = document.createElement('p');
@@ -108,7 +107,7 @@ function createStarRating(rating) {
     starContainer.className = 'star-rating';
 
     let fullStars = Math.floor(rating);
-    let emptyStars = 5 - Math.ceil(rating);
+    let emptyStars = 5 - fullStars;
 
     for (let i = 0; i < fullStars; i++) {
         const star = document.createElement('img');
