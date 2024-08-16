@@ -4,15 +4,16 @@ document.addEventListener("DOMContentLoaded", () => {
   let type = urlParams.get("type");
   console.log(search, type);
 
-  document.getElementById("search-query").textContent += search;
-
   fetchConfig().then((config) => {
     if (type === "movie") {
+      document.getElementById("search-query").textContent += " " + search + " (Movie)";
       fetchMovies(config, search);
     } else if (type === "tv") {
+      document.getElementById("search-query").textContent += " " + search + " (TV)";
       fetchShows(config, search);
     } else if (type === "person") {
-      fetchPeopleQuery(config, search);
+      document.getElementById("search-query").textContent += " " + search + " (Actors/Actresses)";
+      fetchPeople(config, search);
     }
   });
 });
@@ -64,44 +65,69 @@ async function fetchShows(config, search) {
   }
 }
 
+async function fetchPeople(config, search) {
+  let {api_url, api_read_token } = config;
+  let people = `${api_url}search/person?&include_adult=true&query=${search}`
+  try {
+    let response = await fetch(people, {
+      headers: {
+        Authorization: `Bearer ${api_read_token}`,
+      },
+    });
+    let data = await response.json();
+    displayPeopleResults(data.results, "results-container");
+  } catch (error) {
+    console.error("Error fetching Actor/Actress:", error);
+  }
+}
+
 function displayResults(results, containerId) {
   let cardContainer = document.getElementById(containerId);
   let carouselOuter = document.createElement("div");
   let carouselInner = document.createElement("div");
   let carouselID = "id" + Math.floor(10000 + Math.random() * 90000).toString();
 
+  let rowContainer = document.createElement("div");
+  rowContainer.className = "row";
+
   carouselOuter.className = "carousel carousel-light slide";
   carouselOuter.setAttribute("id", carouselID);
   carouselOuter.setAttribute("data-bs-interval", "false");
   carouselInner.className = "carousel-inner";
 
-  const cardsPerSlide = 5;
-
-  results.forEach((result, index) => {
-    if (index % cardsPerSlide === 0) {
-      let carouselItem = document.createElement("div");
-      carouselItem.className =
-        index === 0 ? "carousel-item active" : "carousel-item";
-      carouselInner.appendChild(carouselItem);
-
-      let childRow = document.createElement("div");
-      childRow.className = "row";
-      carouselItem.appendChild(childRow);
-    }
-
+  results.forEach((result) => {
     let card = createCard(result);
-    carouselInner.lastChild.firstChild.appendChild(card);
+    let col = document.createElement("div");
+    col.className = "col-md-2";
+    col.appendChild(card);
+    rowContainer.appendChild(col);
   });
 
-  carouselOuter.appendChild(carouselInner);
+  cardContainer.appendChild(rowContainer);
+}
 
-  let carouselPrev = createCarouselNav("prev", carouselID);
-  let carouselNext = createCarouselNav("next", carouselID);
+function displayPeopleResults(results, containerId) {
+  let cardContainer = document.getElementById(containerId);
+  cardContainer.innerHTML = ""; // Clear previous results
+  console.log(results);
 
-  carouselOuter.appendChild(carouselPrev);
-  carouselOuter.appendChild(carouselNext);
+  results.forEach((result) => {
+    let nameElement = document.createElement("h3");
+    nameElement.textContent = result.name;
 
-  cardContainer.appendChild(carouselOuter);
+    let rowContainer = document.createElement("div");
+    rowContainer.className = "row";
+
+    result.known_for.forEach((movie) => {
+      let card = createCard(movie);
+      let col = document.createElement("div");
+      col.className = "col-md-3"; // Adjust the column size as needed
+      col.appendChild(card);
+      rowContainer.appendChild(col);
+    });
+    cardContainer.appendChild(nameElement);
+    cardContainer.appendChild(rowContainer);
+  });
 }
 
 function createCard(result) {
@@ -114,7 +140,11 @@ function createCard(result) {
   let img = document.createElement("img");
   img.className = "card-img";
 
-  img.src = `https://image.tmdb.org/t/p/w500${result.poster_path}`;
+  if (result.poster_path === null) {
+    img.src = './images/empty-poster.png'
+  } else {
+    img.src = `https://image.tmdb.org/t/p/w500${result.poster_path}`;
+  }
   img.alt = `${result.title} poster`;
 
   let title = document.createElement("a");
