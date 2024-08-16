@@ -6,13 +6,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   fetchConfig().then((config) => {
     if (type === "movie") {
-      document.getElementById("search-query").textContent += " " + search + " (Movie)";
+      document.getElementById("search-query").textContent +=
+        " " + search + " (Movie)";
       fetchMovies(config, search);
     } else if (type === "tv") {
-      document.getElementById("search-query").textContent += " " + search + " (TV)";
+      document.getElementById("search-query").textContent +=
+        " " + search + " (TV)";
       fetchShows(config, search);
     } else if (type === "person") {
-      document.getElementById("search-query").textContent += " " + search + " (Actors/Actresses)";
+      document.getElementById("search-query").textContent +=
+        " " + search + " (Actors/Actresses)";
       fetchPeople(config, search);
     }
   });
@@ -66,8 +69,8 @@ async function fetchShows(config, search) {
 }
 
 async function fetchPeople(config, search) {
-  let {api_url, api_read_token } = config;
-  let people = `${api_url}search/person?&include_adult=true&query=${search}`
+  let { api_url, api_read_token } = config;
+  let people = `${api_url}search/person?&include_adult=true&query=${search}`;
   try {
     let response = await fetch(people, {
       headers: {
@@ -141,7 +144,7 @@ function createCard(result) {
   img.className = "card-img";
 
   if (result.poster_path === null) {
-    img.src = './images/empty-poster.png'
+    img.src = "./images/empty-poster.png";
   } else {
     img.src = `https://image.tmdb.org/t/p/w500${result.poster_path}`;
   }
