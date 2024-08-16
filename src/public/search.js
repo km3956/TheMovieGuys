@@ -115,21 +115,43 @@ function displayPeopleResults(results, containerId) {
   console.log(results);
 
   results.forEach((result) => {
-    let nameElement = document.createElement("h3");
+    let nameElement = document.createElement("h1");
     nameElement.textContent = result.name;
+    nameElement.className = "left-aligned-text";
+
+    let imgElement = document.createElement("img");
+    if (result.profile_path === null) {
+      imgElement.src = "./images/empty-poster.png";
+    } else {
+      imgElement.src = `https://image.tmdb.org/t/p/w500${result.profile_path}`;
+    }
+    imgElement.className = "profile-image centered-image";
+    imgElement.width = 250;
+    imgElement.height = 375;
+
+    let knownElement = document.createElement("h2");
+    knownElement.textContent = "Known for: ";
+    knownElement.className = "left-aligned-text tabbed-text";
 
     let rowContainer = document.createElement("div");
-    rowContainer.className = "row";
+    rowContainer.className = "row centered-row";
 
     result.known_for.forEach((movie) => {
       let card = createCard(movie);
       let col = document.createElement("div");
-      col.className = "col-md-3"; // Adjust the column size as needed
+      col.className = "col-md-4";
       col.appendChild(card);
       rowContainer.appendChild(col);
     });
-    cardContainer.appendChild(nameElement);
-    cardContainer.appendChild(rowContainer);
+    let personContainer = document.createElement("div");
+    personContainer.className = "person-container";
+
+    personContainer.appendChild(nameElement);
+    personContainer.appendChild(imgElement);
+    personContainer.appendChild(knownElement);
+    personContainer.appendChild(rowContainer);
+
+    cardContainer.appendChild(personContainer);
   });
 }
 

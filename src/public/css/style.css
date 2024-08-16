@@ -207,3 +207,31 @@ body {
   float: right;
   font-size: 20px;
 }
+
+.centered-image {
+  display: flex;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.centered-row {
+  display: flex;
+  justify-content: center;
+}
+
+.person-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 100px;
+}
+
+.left-aligned-text {
+  align-self: flex-start;
+  width: 100%;
+  text-align: left;
+}
+
+.tabbed-text {
+  padding-left: 150px;
+}
