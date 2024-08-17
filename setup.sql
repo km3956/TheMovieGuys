@@ -107,9 +107,9 @@ INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES (3000, 5, 3.0, '
 INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES (2000, 5, 3.1, 'Good, but I probably wouldn''t watch it again');
 
 -- add queued movies for user1
-INSERT INTO queue (movie_id, account_id, status) VALUES (100, 1, 'Watched');
-INSERT INTO queue (movie_id, account_id, status) VALUES (300, 1, 'Watching');
-INSERT INTO queue (movie_id, account_id, status) VALUES (400, 1, 'Queue');
+INSERT INTO queue (movie_id, account_id, status) VALUES (533535, 1, 'Watched');
+INSERT INTO queue (movie_id, account_id, status) VALUES (718821, 1, 'Watching');
+INSERT INTO queue (movie_id, account_id, status) VALUES (519182, 1, 'Queue');
 
 -- add queued movies for user2
 INSERT INTO queue (movie_id, account_id, status) VALUES (100, 2, 'Watched');
@@ -132,9 +132,9 @@ INSERT INTO queue (movie_id, account_id, status) VALUES (400, 5, 'Watching');
 INSERT INTO queue (movie_id, account_id, status) VALUES (300, 5, 'Queue');
 
 -- add queued tv shows for user1
-INSERT INTO queue (tv_id, account_id, status) VALUES (1000, 1, 'Watched');
-INSERT INTO queue (tv_id, account_id, status) VALUES (3000, 1, 'Watching');
-INSERT INTO queue (tv_id, account_id, status) VALUES (4000, 1, 'Queue');
+INSERT INTO queue (tv_id, account_id, status) VALUES (237480, 1, 'Watched');
+INSERT INTO queue (tv_id, account_id, status) VALUES (8892, 1, 'Watching');
+INSERT INTO queue (tv_id, account_id, status) VALUES (223365, 1, 'Queue');
 
 -- add queued tv shows for user2
 INSERT INTO queue (tv_id, account_id, status) VALUES (1000, 2, 'Watched');

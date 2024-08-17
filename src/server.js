@@ -307,3 +307,26 @@ app.get("/tv", async (req, res) => {
     res.status(500).send("Error fetching reviews");
   }
 });
+
+app.get("/load_watched_list", async (req, res) => {
+  let token = req.cookies.token;
+  if (!token || !tokenStorage[token]) {
+    return res.status(401).send("User not logged in");
+  }
+
+  let username = tokenStorage[token];
+
+  try {
+    let userQuery = await pool.query(
+      "SELECT id FROM accounts WHERE username = $1",
+      [username],
+    );
+    let userId = userQuery.rows[0].id;
+    let result = await pool.query("SELECT * FROM queue WHERE account_id = $1", [
+      userId,
+    ]);
+    return res.json({ details: result.rows });
+  } catch (error) {
+    return res.status(500).send("Error retrieving watchlist! ");
+  }
+});
