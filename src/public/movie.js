@@ -21,19 +21,35 @@ async function fetchConfig() {
 }
 
 async function fetchMovieDetails(config, movieID) {
-  let { api_url, api_key } = config;
-  let movieDetails = `${api_url}movie/${movieID}?api_key=${api_key}&language=en-US`;
-  let movieProvider = `${api_url}movie/${movieID}/watch/providers?api_key=${api_key}`;
-  let castDetail = `https://api.themoviedb.org/3/movie/${movieID}/credits?api_key=${api_key}&language=en-US`;
+  let { api_url, api_read_token } = config;
+  let movieDetails = `${api_url}movie/${movieID}?&language=en-US`;
+  let movieProvider = `${api_url}movie/${movieID}/watch/providers?`;
+  let castDetail = `https://api.themoviedb.org/3/movie/${movieID}/credits?&language=en-US`;
 
   try {
-    let response = await fetch(movieDetails);
-    let provider = await fetch(movieProvider);
+    let response = await fetch(movieDetails, {
+      headers: {
+        Authorization: `Bearer ${api_read_token}`,
+      },
+    });
+    let provider = await fetch(movieProvider, {
+      headers: {
+        Authorization: `Bearer ${api_read_token}`,
+      },
+    });
+    let cast = await fetch(castDetail, {
+      headers: {
+        Authorization: `Bearer ${api_read_token}`,
+      },
+    });
+    let reviewsResponse = await fetch(`/movie?id=${movieID}`, {
+      headers: {
+        Authorization: `Bearer ${api_read_token}`,
+      },
+    });
     let data = await response.json();
     let providerData = await provider.json();
-    let cast = await fetch(castDetail);
     let castData = await cast.json();
-    let reviewsResponse = await fetch(`/movie?id=${movieID}`);
     let reviewsData = await reviewsResponse.json();
     createMovieDetails(data, providerData, castData, reviewsData);
   } catch (error) {
