@@ -270,6 +270,12 @@ function createTVDetails(tv, providerData, castData, reviewsData) {
   let reviewsSection = document.createElement("div");
   reviewsSection.className = "reviews-section";
 
+  tvContainer.appendChild(title);
+  tvContainer.appendChild(lineBreak);
+  tvContainer.appendChild(buttonRow);
+  tvContainer.appendChild(lineBreak);
+  tvContainer.appendChild(detailsRow);
+
   if (reviewsData && reviewsData.length !== 0) {
     let reviewsTitle = document.createElement("h2");
     reviewsTitle.textContent = "Reviews";
@@ -297,12 +303,6 @@ function createTVDetails(tv, providerData, castData, reviewsData) {
 
       reviewsSection.appendChild(reviewContainer);
     });
+    tvContainer.appendChild(reviewsSection);
   }
-
-  tvContainer.appendChild(title);
-  tvContainer.appendChild(lineBreak);
-  tvContainer.appendChild(buttonRow);
-  tvContainer.appendChild(lineBreak);
-  tvContainer.appendChild(detailsRow);
-  tvContainer.appendChild(reviewsSection);
 }

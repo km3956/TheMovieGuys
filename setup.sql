@@ -1,6 +1,13 @@
-DROP DATABASE IF EXISTS themovieguys;
 CREATE DATABASE themovieguys;
 \c themovieguys
+DO $$
+DECLARE
+    r RECORD;
+BEGIN
+    FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
+        EXECUTE 'DROP TABLE IF EXISTS public.' || quote_ident(r.tablename) || ' CASCADE';
+    END LOOP;
+END $$;
 
 CREATE TABLE accounts (
 	id SERIAL PRIMARY KEY,
