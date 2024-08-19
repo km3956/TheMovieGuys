@@ -36,7 +36,7 @@ async function fetchMovies(config, search) {
   let allMovies = [];
   let data = {};
   for (let i = 1; i <= 10; i++) {
-    let movies = `${api_url}search/movie?&language=en-US&page=1&include_adult=true&query=${search}`;
+    let movies = `${api_url}search/movie?&language=en-US&page=1&query=${search}`;
     try {
       let response = await fetch(movies, {
         headers: {
@@ -54,7 +54,7 @@ async function fetchMovies(config, search) {
 
 async function fetchShows(config, search) {
   let { api_url, api_read_token } = config;
-  let tvShows = `${api_url}search/tv?&language=en-US&page=1&include_adult=true&query=${search}`;
+  let tvShows = `${api_url}search/tv?&language=en-US&page=1&query=${search}`;
   try {
     let response = await fetch(tvShows, {
       headers: {
@@ -70,7 +70,7 @@ async function fetchShows(config, search) {
 
 async function fetchPeople(config, search) {
   let { api_url, api_read_token } = config;
-  let people = `${api_url}search/person?&include_adult=true&query=${search}`;
+  let people = `${api_url}search/person?&query=${search}`;
   try {
     let response = await fetch(people, {
       headers: {
