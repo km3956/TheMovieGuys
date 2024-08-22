@@ -138,7 +138,7 @@ body {
   border-radius: 20px;
 }
 
-.movie-info {
+.movie-info, .tv-info {
   position: relative;
   z-index: 2;
 }
