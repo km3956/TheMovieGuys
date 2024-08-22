@@ -298,6 +298,36 @@ app.post("/submit-review", async (req, res) => {
   }
 });
 
+app.post("/submit-queue", async (req, res) => {
+  let token = req.cookies.token;
+  if (!token || !tokenStorage[token]) {
+    return res.status(401).send("User not logged in");
+  }
+
+  let username = tokenStorage[token];
+  let {status, movieId} = req.body;
+  try {
+    let userQuery = await pool.query(
+      "SELECT id FROM accounts WHERE username = $1",
+      [username],
+    );
+    let userId = userQuery.rows[0].id;
+    
+    await pool.query(
+      "DELETE FROM queue WHERE movie_id = $1 AND account_id = $2;",
+      [movieId, userId]
+    );
+
+    await pool.query(
+      "INSERT INTO queue (movie_id, account_id, status) VALUES ($1, $2, $3);",
+      [movieId, userId, status], 
+    );
+    return res.status(200).send("Queue submitted");
+  } catch (error) {
+    return res.status(500).send("Error submitting queue");
+  }
+});
+
 async function getTVReviews(tvID) {
   try {
     let result = await pool.query(
