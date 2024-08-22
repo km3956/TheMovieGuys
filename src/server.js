@@ -181,6 +181,16 @@ app.post("/login", async (req, res) => {
 // for reviews on movie landing page
 async function getMovieReviews(movieId, username) {
   try {
+    let userQuery = await pool.query(
+      `
+      SELECT r.id, a.username AS author, r.rating, r.comment 
+      FROM reviews r 
+      JOIN accounts a ON r.account_id = a.id 
+      WHERE r.movie_id = $1
+        AND a.username = $2
+      `,
+      [movieId, username]
+    );
     let friendQuery = await pool.query(
       `
       SELECT r.id, a.username AS author, r.rating, r.comment 
@@ -205,7 +215,8 @@ async function getMovieReviews(movieId, username) {
       SELECT r.id, a.username AS author, r.rating, r.comment 
       FROM reviews r 
       JOIN accounts a ON r.account_id = a.id 
-      WHERE r.movie_id = $1
+      WHERE r.movie_id = $1 
+        AND a.username <> $2
         AND r.account_id NOT IN (
           SELECT following_id 
           FROM friends 
@@ -218,8 +229,7 @@ async function getMovieReviews(movieId, username) {
     `,
       [movieId, username],
     );
-
-    let result = friendQuery.rows.concat(nonfriendQuery.rows);
+    let result = userQuery.rows.concat(friendQuery.rows).concat(nonfriendQuery.rows);
     return result;
   } catch (error) {
     console.error("Error fetching reviews:", error);
@@ -260,7 +270,7 @@ app.post("/submit-review", async (req, res) => {
   }
 
   let username = tokenStorage[token];
-  let { rating, comment, movieId } = req.body;
+  let {rating, comment, movieId} = req.body;
 
   try {
     let userQuery = await pool.query(
@@ -268,6 +278,16 @@ app.post("/submit-review", async (req, res) => {
       [username],
     );
     let userId = userQuery.rows[0].id;
+    
+    let existingReviewQuery = await pool.query(
+      "SELECT * FROM reviews WHERE account_id = $1 AND movie_id = $2",
+      [userId, movieId]
+    );
+    
+    if (existingReviewQuery.rowCount > 0) {
+      return res.status(409).send("You have already reviewed this movie");
+    }
+
     await pool.query(
       "INSERT INTO reviews (movie_id, account_id, rating, comment) VALUES ($1, $2, $3, $4)",
       [movieId, userId, rating, comment],

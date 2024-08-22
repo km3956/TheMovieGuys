@@ -153,7 +153,7 @@ function showRatingForm(movieId) {
 
   let closeButton = document.createElement("span");
   closeButton.className = "close-button";
-  closeButton.textContent = "×";
+  closeButton.textContent = "x";
 
   let header = document.createElement("h2");
   header.textContent = "Rate this Movie";
@@ -197,12 +197,12 @@ function showRatingForm(movieId) {
   submitButton.addEventListener("click", async () => {
     let rating = ratingInput.value;
     let comment = commentTextarea.value;
-
+  
     let response = await fetch("/check-login", {
       method: "GET",
       credentials: "include",
     });
-
+  
     if (response.ok) {
       let reviewResponse = await fetch("/submit-review", {
         method: "POST",
@@ -215,10 +215,13 @@ function showRatingForm(movieId) {
           movieId: movieId,
         }),
       });
-
+  
       if (reviewResponse.ok) {
         alert("Review submitted successfully!");
         modal.remove();
+        window.location.reload();
+      } else if (reviewResponse.status === 409) {
+        alert("You have already reviewed this movie.");
       } else {
         alert("Error submitting review. Please try again later.");
       }
