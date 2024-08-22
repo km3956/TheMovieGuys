@@ -20,8 +20,8 @@
     <body class="bg-dark">
       <div id="nav-content"></div>
       <h2 style="text-align: center">New Releases</h2>
-      ;
       <div id="movies-content"></div>
+      <div id="pagination"></div>
       <script src="newreleases.js"></script>
     </body>
   </body>
@@ -30,5 +30,6 @@
 <script>
   $(document).ready(function () {
     $("#nav-content").load("./components/nav.html");
+    $("#pagination").load("./components/pagination.html");
   });
 </script>

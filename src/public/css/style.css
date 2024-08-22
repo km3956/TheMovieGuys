@@ -236,3 +236,18 @@ body {
 .tabbed-text {
   padding-left: 150px;
 }
+
+#pagination {
+  margin-top: 20px;
+}
+.page-number {
+  margin: 0 5px;
+  cursor: pointer;
+  color: white;
+}
+
+.page-arrow {
+  margin: 0 10px;
+  cursor: pointer;
+  font-size: 18px;
+}
