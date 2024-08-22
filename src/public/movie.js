@@ -147,13 +147,15 @@ function createStarRating(rating) {
 function showRatingForm(movieId) {
   let modal = document.createElement("div");
   modal.className = "modal";
+  modal.id = "modal-movie";
 
   let modalContent = document.createElement("div");
   modalContent.className = "modal-content";
+  modalContent.id = "modal-content-movie";
 
   let closeButton = document.createElement("span");
   closeButton.className = "close-button";
-  closeButton.textContent = "×";
+  closeButton.textContent = "x";
 
   let header = document.createElement("h2");
   header.textContent = "Rate this Movie";
@@ -161,6 +163,7 @@ function showRatingForm(movieId) {
   let ratingLabel = document.createElement("label");
   ratingLabel.setAttribute("for", "rating");
   ratingLabel.textContent = "Rating (1-5 stars):";
+  
 
   let ratingInput = document.createElement("input");
   ratingInput.type = "number";
@@ -198,11 +201,16 @@ function showRatingForm(movieId) {
     let rating = ratingInput.value;
     let comment = commentTextarea.value;
 
+    if (rating < 1 || rating > 5) {
+      alert("Please enter a rating between 1 and 5.");
+      return;
+    }
+  
     let response = await fetch("/check-login", {
       method: "GET",
       credentials: "include",
     });
-
+  
     if (response.ok) {
       let reviewResponse = await fetch("/submit-review", {
         method: "POST",
@@ -215,10 +223,13 @@ function showRatingForm(movieId) {
           movieId: movieId,
         }),
       });
-
+  
       if (reviewResponse.ok) {
         alert("Review submitted successfully!");
         modal.remove();
+        window.location.reload();
+      } else if (reviewResponse.status === 409) {
+        alert("You have already reviewed this movie.");
       } else {
         alert("Error submitting review. Please try again later.");
       }
@@ -245,18 +256,18 @@ function createMovieDetails(movie, providerData, castData, reviewsData) {
   title.className = "movie-title";
 
   let controls = document.createElement("div");
-  controls.className = "controls";
+  controls.id = "controls";
 
   let dropdown = document.createElement("select");
-  dropdown.appendChild(new Option("Choose", "Choose"));
-  dropdown.appendChild(new Option("Currently Watching", "Currently Watching"));
-  dropdown.appendChild(new Option("Add To Queue", "Add To Queue"));
-  dropdown.appendChild(new Option("Already Watched", "Already Watched"));
-  dropdown.className = "dropdown";
+  dropdown.appendChild(new Option("Choose Status...", "Choose"));
+  dropdown.appendChild(new Option("Currently Watching", "Watching"));
+  dropdown.appendChild(new Option("Add To Queue", "Queue"));
+  dropdown.appendChild(new Option("Already Watched", "Watched"));
+  dropdown.id = "dropdown";
 
   let rateButton = document.createElement("button");
   rateButton.textContent = "Rate";
-  rateButton.className = "rate-button";
+  rateButton.id = "rate-button";
 
   controls.appendChild(dropdown);
   controls.appendChild(rateButton);
@@ -264,6 +275,37 @@ function createMovieDetails(movie, providerData, castData, reviewsData) {
   rateButton.addEventListener("click", () => {
     showRatingForm(movie.id);
   });
+
+  dropdown.addEventListener("change", async (event) => {
+    let selectedOption = event.target.value;
+    console.log(selectedOption);
+    let response = await fetch("/check-login", {
+      method: "GET",
+      credentials: "include",
+    });
+    if (response.ok) {
+      if (selectedOption !== "Choose") {
+        let reviewResponse = await fetch("/submit-queue", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            status: selectedOption,
+            movieId: movie.id,
+          }),
+        });
+        if (reviewResponse.ok) {
+          alert("Queue submitted successfully!");
+        } else {
+          alert("Error submitting queue. Please try again later.");
+        }
+      } else {
+        alert("You need to log in to Queue this movie.");
+      }
+    }
+  });
+
 
   buttonRow.appendChild(controls);
 
@@ -350,6 +392,7 @@ function createMovieDetails(movie, providerData, castData, reviewsData) {
   moviesContainer.appendChild(title);
   moviesContainer.appendChild(buttonRow);
   moviesContainer.appendChild(detailsRow);
+  
 
   if (castData.cast && castData.cast.length !== 0) {
     let castSection = document.createElement("div");
