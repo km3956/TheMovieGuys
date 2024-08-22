@@ -342,27 +342,18 @@ app.get("/get-user", async (req, res) => {
   // return display name later on as well
 });
 
-app.get("/get-following", async (req, res) => {
-  let token = req.cookies.token;
-  if (!token || !tokenStorage[token]) {
-    return res.status(401).send("User not logged in");
-  }
-
-  let username = tokenStorage[token];
-
+app.get("/get-user/:id", async (req, res) => {
+  let id = req.params.id;
+  
   try {
     let userQuery = await pool.query(
-      "SELECT id FROM accounts WHERE username = $1",
-      [username],
+      "SELECT username FROM accounts WHERE id = $1",
+      [id],
     );
-    let userId = userQuery.rows[0].id;
-    let result = await pool.query(
-      "SELECT following_id FROM friends WHERE follower_id = $1",
-      [userId],
-    );
-    return res.json({ followingCount: result.rowCount, followedAccounts: result.rows });
+    let username = userQuery.rows[0].username;
+    return res.json({ username });
   } catch (error) {
-    return res.status(500).send("Error getting user following!")
+    return res.status(500).send("Error getting requested username!");
   }
 });
 
@@ -384,7 +375,30 @@ app.get("/get-followers", async (req, res) => {
       "SELECT follower_id FROM friends WHERE following_id = $1",
       [userId],
     );
-    console.log(result);
+    return res.json({ followerCount: result.rowCount, followers: result.rows });
+  } catch (error) {
+    return res.status(500).send("Error getting user following!")
+  }
+});
+
+app.get("/get-following", async (req, res) => {
+  let token = req.cookies.token;
+  if (!token || !tokenStorage[token]) {
+    return res.status(401).send("User not logged in");
+  }
+
+  let username = tokenStorage[token];
+
+  try {
+    let userQuery = await pool.query(
+      "SELECT id FROM accounts WHERE username = $1",
+      [username],
+    );
+    let userId = userQuery.rows[0].id;
+    let result = await pool.query(
+      "SELECT following_id FROM friends WHERE follower_id = $1",
+      [userId],
+    );
     return res.json({ followingCount: result.rowCount, followedAccounts: result.rows });
   } catch (error) {
     return res.status(500).send("Error getting user following!")

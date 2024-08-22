@@ -1,15 +1,16 @@
 document.addEventListener("DOMContentLoaded", () => {
+    //$("#exampleModal").modal("hide");
     fetchConfig().then(async (config) => {
         let loginResult = await checkLogin();
         //console.log(loginResult);
         if (loginResult.ok) {
             fetchUserInfo(config);
+            fetchFollowers(config);
             //fetchFollowing(config);
-            //fetchFollowers(config);
             //fetchLikedMovies(config);
         } else {
             // redirect user to login page
-            //location.href = "./login.html";
+            location.href = "./login.html";
         }
     });
 });
@@ -36,7 +37,6 @@ async function checkLogin() {
 async function fetchUserInfo(config) {
     let result = await fetch("/get-user");
     let data = await result.json();
-    //console.log(data);
     displayUserInfo(data);
 
     async function displayUserInfo(data) {
@@ -51,6 +51,30 @@ async function fetchUserInfo(config) {
     }
 }
 
+async function fetchFollowers(config) {
+    let result = await fetch("/get-followers");
+    let data = await result.json();
+    displayFollowers(data);
+   
+    async function displayFollowers(data) {
+        let followerButton = document.getElementById("followerButton");
+        followerButton.textContent = `${data.followerCount} followers`;
+
+        let followerList = document.getElementById("follower-list");
+        let path, result, user;
+        for (let i = 0; i < data.followerCount; i++) {
+            path = "/get-user/" + data.followers[i].follower_id;
+            result = await fetch(path);
+            user = await result.json();
+            
+            let newItem = document.createElement("li");
+            newItem.className = "list-group-item";
+            newItem.textContent = user.username;
+            followerList.append(newItem);
+        }
+    }
+}
+
 async function fetchFollowing(config) {
     let result = await fetch("/get-following");
     let data = await result.json();
@@ -59,10 +83,6 @@ async function fetchFollowing(config) {
     async function displayFollowing(data) {
         
     }
-}
-
-async function fetchFollowers(config) {
-
 }
 
 async function fetchLikedMovies(config) {

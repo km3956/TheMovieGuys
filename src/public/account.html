@@ -24,6 +24,33 @@
         <div id="welcome-card" class="card text-bg-secondary p-3">
           <h1 id="welcome-content" class="card-title"></h1>
         </div>
+        <div class="container">
+          <div id="friends" class="row">
+            <div class="col-md-auto">
+              <button id="followerButton" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#followerModal"></button>
+            </div>
+            <div class="col-md-auto">
+              <button id="followingButton" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#followingModal">following</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" id="followerModal" tabindex="-1" aria-labelledby="followerLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="followerLabel" id="exampleModalLabel">Followers:</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <ul id="follower-list" class="list-group list-group-flush"></ul>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div id="user-info" class="col-sm-6">
