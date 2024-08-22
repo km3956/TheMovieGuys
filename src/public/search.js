@@ -122,7 +122,7 @@ async function displayPeopleResults(results, containerId, config) {
     nameElement.className = "left-aligned-text";
 
     let actorId = result.id;
-    console.log(result.name, result.id)
+    console.log(result.name, result.id);
 
     let imgElement = document.createElement("img");
     if (result.profile_path === null) {
@@ -152,7 +152,8 @@ async function displayPeopleResults(results, containerId, config) {
 
       let carouselOuter = document.createElement("div");
       let carouselInner = document.createElement("div");
-      let carouselID = "id" + Math.floor(10000 + Math.random() * 90000).toString();
+      let carouselID =
+        "id" + Math.floor(10000 + Math.random() * 90000).toString();
 
       carouselOuter.className = "carousel carousel-light slide";
       carouselOuter.setAttribute("id", carouselID);
@@ -192,11 +193,9 @@ async function displayPeopleResults(results, containerId, config) {
       personContainer.appendChild(carouselOuter);
 
       cardContainer.appendChild(personContainer);
-
     } catch (error) {
       console.error("Error fetching Actor/Actress:", error);
     }
-    
   });
 }
 
