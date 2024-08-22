@@ -399,7 +399,7 @@ app.get("/get-following", async (req, res) => {
       "SELECT following_id FROM friends WHERE follower_id = $1",
       [userId],
     );
-    return res.json({ followingCount: result.rowCount, followedAccounts: result.rows });
+    return res.json({ followingCount: result.rowCount, following: result.rows });
   } catch (error) {
     return res.status(500).send("Error getting user following!")
   }

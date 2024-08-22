@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (loginResult.ok) {
             fetchUserInfo(config);
             fetchFollowers(config);
-            //fetchFollowing(config);
+            fetchFollowing(config);
             //fetchLikedMovies(config);
         } else {
             // redirect user to login page
@@ -78,10 +78,24 @@ async function fetchFollowers(config) {
 async function fetchFollowing(config) {
     let result = await fetch("/get-following");
     let data = await result.json();
-    displayFollowing(data);
+    displayFollowers(data);
    
-    async function displayFollowing(data) {
-        
+    async function displayFollowers(data) {
+        let followingButton = document.getElementById("followingButton");
+        followingButton.textContent = `${data.followingCount} following`;
+
+        let followingList = document.getElementById("following-list");
+        let path, result, user;
+        for (let i = 0; i < data.followingCount; i++) {
+            path = "/get-user/" + data.following[i].following_id;
+            result = await fetch(path);
+            user = await result.json();
+            
+            let newItem = document.createElement("li");
+            newItem.className = "list-group-item";
+            newItem.textContent = user.username;
+            followingList.append(newItem);
+        }
     }
 }
 
