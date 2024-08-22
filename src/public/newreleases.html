@@ -19,8 +19,10 @@
   <body>
     <body class="bg-dark">
       <div id="nav-content"></div>
-      <div id="tv-details" class="tv-details"></div>
-      <script type="module" src="tv.js"></script>
+      <h2 style="text-align: center">New Releases</h2>
+      <div id="movies-content"></div>
+      <div id="pagination"></div>
+      <script src="newreleases.js"></script>
     </body>
   </body>
 </html>
@@ -28,5 +30,6 @@
 <script>
   $(document).ready(function () {
     $("#nav-content").load("./components/nav.html");
+    $("#pagination").load("./components/pagination.html");
   });
 </script>
