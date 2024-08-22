@@ -283,7 +283,12 @@ function createMovieDetails(movie, providerData, castData, reviewsData) {
   info.className = "movie-info";
 
   let releaseDate = document.createElement("p");
-  releaseDate.textContent = `Release Date: ${movie.release_date}`;
+  let inputDate = movie.release_date;
+  if (inputDate) {
+    let dateParts = inputDate.split("-");
+    let formattedDate = `${dateParts[1]}/${dateParts[2]}/${dateParts[0]}`;
+    releaseDate.textContent = `Release Date: ${formattedDate}`;
+  }
 
   let runtime = document.createElement("p");
   runtime.textContent = `Runtime: ${movie.runtime} minutes`;
