@@ -166,6 +166,10 @@ INSERT INTO queue (tv_id, account_id, status) VALUES (3000, 5, 'Queue');
 -- add liked movies for user1
 INSERT INTO liked (movie_id, account_id) VALUES (718821, 1);
 INSERT INTO liked (movie_id, account_id) VALUES (157336, 1);
+INSERT INTO liked (movie_id, account_id) VALUES (64690, 1);
+INSERT INTO liked (movie_id, account_id) VALUES (584, 1);
+INSERT INTO liked (movie_id, account_id) VALUES (6977, 1);
+INSERT INTO liked (movie_id, account_id) VALUES (522627, 1);
 
 -- add liked movies for user2
 INSERT INTO liked (movie_id, account_id) VALUES (200, 2);
@@ -186,6 +190,10 @@ INSERT INTO liked (movie_id, account_id) VALUES (400, 5);
 -- add liked tv shows for user1
 INSERT INTO liked (tv_id, account_id) VALUES (1405, 1);
 INSERT INTO liked (tv_id, account_id) VALUES (76479, 1);
+INSERT INTO liked (tv_id, account_id) VALUES (46952, 1);
+INSERT INTO liked (tv_id, account_id) VALUES (88803, 1);
+INSERT INTO liked (tv_id, account_id) VALUES (97400, 1);
+INSERT INTO liked (tv_id, account_id) VALUES (236235, 1);
 
 -- add liked tv shows for user2
 INSERT INTO liked (tv_id, account_id) VALUES (2000, 2);

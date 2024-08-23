@@ -101,10 +101,19 @@ async function fetchFollowing(config) {
 async function fetchLikedMovies(config) {
     let result = await fetch("/get-liked-movies");
     let movies = await result.json();
+
+    let movieCount = document.getElementById("movie-count");
+    movieCount.textContent = `${movies.length} liked movies`;
+
+    if (movies.length === 0) {
+        $("#movie-container").toggle();
+    }
     
     const cardsPerSlide = 5;
+
     let carouselInner = document.getElementById("liked-movies");
-    movies.forEach(async (movie, index) => {
+
+    for (let index = 0; index < movies.length; index++) {
         if (index % cardsPerSlide === 0) {
             let carouselItem = document.createElement("div");
             carouselItem.className =
@@ -114,12 +123,12 @@ async function fetchLikedMovies(config) {
             let childRow = document.createElement("div");
             childRow.className = "row";
             carouselItem.appendChild(childRow);
-          }
+        }
       
-          let movieData = await fetchMovieDetail(config, movie.movie_id);
-          let card = createCard(movieData);
-          carouselInner.lastChild.firstChild.appendChild(card);
-    });
+        let movieData = await fetchMovieDetail(config, movies[index].movie_id);
+        let card = createCard(movieData);
+        carouselInner.lastChild.firstChild.appendChild(card);
+    }
 }
 
 async function fetchMovieDetail(config, movie_id) {
@@ -141,10 +150,18 @@ async function fetchMovieDetail(config, movie_id) {
 async function fetchLikedShows(config) {
     let result = await fetch("/get-liked-shows");
     let shows = await result.json();
+
+    let showCount = document.getElementById("show-count");
+    showCount.textContent = `${shows.length} liked tv shows`;
+
+    if (shows.length === 0) {
+        $("#tv-container").toggle();
+    }
     
     const cardsPerSlide = 5;
     let carouselInner = document.getElementById("liked-shows");
-    shows.forEach(async (show, index) => {
+
+    for (let index = 0; index < shows.length; index++) {
         if (index % cardsPerSlide === 0) {
             let carouselItem = document.createElement("div");
             carouselItem.className =
@@ -156,11 +173,10 @@ async function fetchLikedShows(config) {
             carouselItem.appendChild(childRow);
           }
       
-          let showData = await fetchShowDetail(config, show.tv_id);
-          console.log(showData);
+          let showData = await fetchShowDetail(config, shows[index].tv_id);
           let card = createCard(showData);
           carouselInner.lastChild.firstChild.appendChild(card);
-    });
+    }
 }
 
 async function fetchShowDetail(config, tv_id) {
