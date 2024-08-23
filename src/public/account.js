@@ -1,13 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
-    //$("#exampleModal").modal("hide");
     fetchConfig().then(async (config) => {
         let loginResult = await checkLogin();
-        //console.log(loginResult);
         if (loginResult.ok) {
             fetchUserInfo(config);
             fetchFollowers(config);
             fetchFollowing(config);
-            //fetchLikedMovies(config);
+            fetchLikedMovies(config);
+            //fetchLiekdShows(config);
         } else {
             // redirect user to login page
             location.href = "./login.html";
@@ -100,7 +99,47 @@ async function fetchFollowing(config) {
 }
 
 async function fetchLikedMovies(config) {
+    let result = await fetch("/get-liked-movies");
+    let movies = await result.json();
+    
+    const cardsPerSlide = 5;
+    let carouselInner = document.getElementById("liked-movies");
+    movies.forEach(async (movie, index) => {
+        if (index % cardsPerSlide === 0) {
+            let carouselItem = document.createElement("div");
+            carouselItem.className =
+              index === 0 ? "carousel-item active" : "carousel-item";
+            carouselInner.appendChild(carouselItem);
+      
+            let childRow = document.createElement("div");
+            childRow.className = "row";
+            carouselItem.appendChild(childRow);
+          }
+      
+          let movieData = await fetchMovieDetail(config, movie.movie_id);
+          let card = createCard(movieData);
+          carouselInner.lastChild.firstChild.appendChild(card);
+    });
+}
 
+async function fetchLikedShows(config) {
+
+}
+
+async function fetchMovieDetail(config, movie_id) {
+    let { api_url, api_read_token } = config;
+    let movie = `${api_url}movie/${movie_id}?language=en-US`;
+    try {
+      let response = await fetch(movie, {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      });
+      let data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching requested movie:", error);
+    }
 }
 
 function createCard(result) {
