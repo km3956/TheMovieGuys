@@ -102,3 +102,55 @@ async function fetchFollowing(config) {
 async function fetchLikedMovies(config) {
 
 }
+
+function createCard(result) {
+    let card = document.createElement("div");
+    card.className = "card card-media col-4 rounded";
+
+    let cardImgDiv = document.createElement("div");
+    cardImgDiv.className = "card-img-div";
+
+    let img = document.createElement("img");
+    img.className = "card-img";
+
+    img.src = `https://image.tmdb.org/t/p/w500${result.poster_path}`;
+    img.alt = `${result.title} poster`;
+
+    let title = document.createElement("a");
+    if (result.hasOwnProperty("title")) {
+      title.textContent = result.title;
+      title.href = `movie.html?id=${result.id}`;
+      title.className = "movie-title";
+    } else {
+      title.textContent = result.name;
+      title.href = `tv.html?id=${result.id}`;
+      title.className = "tv-title";
+    }
+
+    let cardText = document.createElement("div");
+    cardText.className = "card-text";
+
+    let relevantDate = document.createElement("p");
+    if (result.hasOwnProperty("release_date")) {
+      relevantDate.textContent = `Release Date: ${result.release_date}`;
+    } else {
+      relevantDate.textContent = `First Air Date: ${result.first_air_date}`;
+    }
+
+    let overview = document.createElement("p");
+    if (result.overview.length > 100) {
+      var shortText = result.overview.substr(0, 120) + "...";
+      overview.textContent = shortText;
+    }
+
+    cardText.append(title);
+    cardText.append(relevantDate);
+    cardText.append(overview);
+
+    cardImgDiv.appendChild(img);
+    cardImgDiv.appendChild(cardText);
+
+    card.appendChild(cardImgDiv);
+
+    return card;
+}

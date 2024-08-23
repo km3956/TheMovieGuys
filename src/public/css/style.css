@@ -181,7 +181,7 @@ body {
   font-size: 0.9rem;
   line-height: 1.5;
 }
-/*
+
 .modal {
   display: flex;
   justify-content: center;
@@ -201,7 +201,7 @@ body {
   border-radius: 5px;
   width: 400px;
 }
-*/
+
 .close-button {
   cursor: pointer;
   float: right;
