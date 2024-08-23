@@ -163,7 +163,6 @@ function showRatingForm(movieId) {
   let ratingLabel = document.createElement("label");
   ratingLabel.setAttribute("for", "rating");
   ratingLabel.textContent = "Rating (1-5 stars):";
-  
 
   let ratingInput = document.createElement("input");
   ratingInput.type = "number";
@@ -205,12 +204,12 @@ function showRatingForm(movieId) {
       alert("Please enter a rating between 1 and 5.");
       return;
     }
-  
+
     let response = await fetch("/check-login", {
       method: "GET",
       credentials: "include",
     });
-  
+
     if (response.ok) {
       let reviewResponse = await fetch("/submit-review", {
         method: "POST",
@@ -223,7 +222,7 @@ function showRatingForm(movieId) {
           movieId: movieId,
         }),
       });
-  
+
       if (reviewResponse.ok) {
         alert("Review submitted successfully!");
         modal.remove();
@@ -305,7 +304,6 @@ function createMovieDetails(movie, providerData, castData, reviewsData) {
       }
     }
   });
-
 
   buttonRow.appendChild(controls);
 
@@ -392,7 +390,6 @@ function createMovieDetails(movie, providerData, castData, reviewsData) {
   moviesContainer.appendChild(title);
   moviesContainer.appendChild(buttonRow);
   moviesContainer.appendChild(detailsRow);
-  
 
   if (castData.cast && castData.cast.length !== 0) {
     let castSection = document.createElement("div");

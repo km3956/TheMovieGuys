@@ -189,7 +189,7 @@ async function getMovieReviews(movieId, username) {
       WHERE r.movie_id = $1
         AND a.username = $2
       `,
-      [movieId, username]
+      [movieId, username],
     );
     let friendQuery = await pool.query(
       `
@@ -229,7 +229,9 @@ async function getMovieReviews(movieId, username) {
     `,
       [movieId, username],
     );
-    let result = userQuery.rows.concat(friendQuery.rows).concat(nonfriendQuery.rows);
+    let result = userQuery.rows
+      .concat(friendQuery.rows)
+      .concat(nonfriendQuery.rows);
     return result;
   } catch (error) {
     console.error("Error fetching reviews:", error);
@@ -270,7 +272,7 @@ app.post("/submit-review", async (req, res) => {
   }
 
   let username = tokenStorage[token];
-  let {rating, comment, movieId} = req.body;
+  let { rating, comment, movieId } = req.body;
 
   try {
     let userQuery = await pool.query(
@@ -278,12 +280,12 @@ app.post("/submit-review", async (req, res) => {
       [username],
     );
     let userId = userQuery.rows[0].id;
-    
+
     let existingReviewQuery = await pool.query(
       "SELECT * FROM reviews WHERE account_id = $1 AND movie_id = $2",
-      [userId, movieId]
+      [userId, movieId],
     );
-    
+
     if (existingReviewQuery.rowCount > 0) {
       return res.status(409).send("You have already reviewed this movie");
     }
@@ -305,22 +307,22 @@ app.post("/submit-queue", async (req, res) => {
   }
 
   let username = tokenStorage[token];
-  let {status, movieId} = req.body;
+  let { status, movieId } = req.body;
   try {
     let userQuery = await pool.query(
       "SELECT id FROM accounts WHERE username = $1",
       [username],
     );
     let userId = userQuery.rows[0].id;
-    
+
     await pool.query(
       "DELETE FROM queue WHERE movie_id = $1 AND account_id = $2;",
-      [movieId, userId]
+      [movieId, userId],
     );
 
     await pool.query(
       "INSERT INTO queue (movie_id, account_id, status) VALUES ($1, $2, $3);",
-      [movieId, userId, status], 
+      [movieId, userId, status],
     );
     return res.status(200).send("Queue submitted");
   } catch (error) {
@@ -394,7 +396,7 @@ app.get("/get-user", async (req, res) => {
 
 app.get("/get-user/:id", async (req, res) => {
   let id = req.params.id;
-  
+
   try {
     let userQuery = await pool.query(
       "SELECT username FROM accounts WHERE id = $1",
@@ -416,18 +418,15 @@ app.get("/get-followers", async (req, res) => {
   let username = tokenStorage[token];
 
   try {
-    let userQuery = await pool.query(
-      "SELECT id FROM accounts WHERE username = $1",
-      [username],
-    );
-    let userId = userQuery.rows[0].id;
     let result = await pool.query(
-      "SELECT follower_id FROM friends WHERE following_id = $1",
-      [userId],
+      `SELECT follower_id FROM friends
+      INNER JOIN accounts ON friends.following_id=accounts.id
+      WHERE accounts.username = $1`,
+      [username],
     );
     return res.json({ followerCount: result.rowCount, followers: result.rows });
   } catch (error) {
-    return res.status(500).send("Error getting user following!")
+    return res.status(500).send("Error getting user following!");
   }
 });
 
@@ -440,18 +439,18 @@ app.get("/get-following", async (req, res) => {
   let username = tokenStorage[token];
 
   try {
-    let userQuery = await pool.query(
-      "SELECT id FROM accounts WHERE username = $1",
+    let result = await pool.query(
+      `SELECT following_id FROM friends
+      INNER JOIN accounts ON friends.follower_id=accounts.id
+      WHERE accounts.username = $1`,
       [username],
     );
-    let userId = userQuery.rows[0].id;
-    let result = await pool.query(
-      "SELECT following_id FROM friends WHERE follower_id = $1",
-      [userId],
-    );
-    return res.json({ followingCount: result.rowCount, following: result.rows });
+    return res.json({
+      followingCount: result.rowCount,
+      following: result.rows,
+    });
   } catch (error) {
-    return res.status(500).send("Error getting user following!")
+    return res.status(500).send("Error getting user following!");
   }
 });
 
