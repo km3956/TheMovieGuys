@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
             fetchFollowers(config);
             fetchFollowing(config);
             fetchLikedMovies(config);
-            //fetchLiekdShows(config);
+            fetchLikedShows(config);
         } else {
             // redirect user to login page
             location.href = "./login.html";
@@ -122,10 +122,6 @@ async function fetchLikedMovies(config) {
     });
 }
 
-async function fetchLikedShows(config) {
-
-}
-
 async function fetchMovieDetail(config, movie_id) {
     let { api_url, api_read_token } = config;
     let movie = `${api_url}movie/${movie_id}?language=en-US`;
@@ -139,6 +135,47 @@ async function fetchMovieDetail(config, movie_id) {
       return data;
     } catch (error) {
       console.error("Error fetching requested movie:", error);
+    }
+}
+
+async function fetchLikedShows(config) {
+    let result = await fetch("/get-liked-shows");
+    let shows = await result.json();
+    
+    const cardsPerSlide = 5;
+    let carouselInner = document.getElementById("liked-shows");
+    shows.forEach(async (show, index) => {
+        if (index % cardsPerSlide === 0) {
+            let carouselItem = document.createElement("div");
+            carouselItem.className =
+              index === 0 ? "carousel-item active" : "carousel-item";
+            carouselInner.appendChild(carouselItem);
+      
+            let childRow = document.createElement("div");
+            childRow.className = "row";
+            carouselItem.appendChild(childRow);
+          }
+      
+          let showData = await fetchShowDetail(config, show.tv_id);
+          console.log(showData);
+          let card = createCard(showData);
+          carouselInner.lastChild.firstChild.appendChild(card);
+    });
+}
+
+async function fetchShowDetail(config, tv_id) {
+    let { api_url, api_read_token } = config;
+    let show = `${api_url}tv/${tv_id}?language=en-US`;
+    try {
+      let response = await fetch(show, {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      });
+      let data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching requested show:", error);
     }
 }
 

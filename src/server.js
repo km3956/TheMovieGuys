@@ -475,3 +475,24 @@ app.get("/get-liked-movies", async (req, res) => {
     return res.status(500).send("Error getting liked movies!");
   }
 });
+
+app.get("/get-liked-shows", async (req, res) => {
+  let token = req.cookies.token;
+  if (!token || !tokenStorage[token]) {
+    return res.status(401).send("User not logged in");
+  }
+
+  let username = tokenStorage[token];
+
+  try {
+    let result = await pool.query(
+      `SELECT tv_id FROM liked
+      INNER JOIN accounts ON liked.account_id=accounts.id
+      WHERE accounts.username = $1 AND tv_id IS NOT NULL`,
+      [username],
+    );
+    return res.json(result.rows);
+  } catch (error) {
+    return res.status(500).send("Error getting liked movies!");
+  }
+});

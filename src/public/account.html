@@ -59,7 +59,7 @@
 
     <div class="container">
       <div class="row-title">
-        <h3>Your liked movies</h3>
+        <h3>Your Liked Movies:</h3>
       </div>
       <div id="liked-movie-carousel" class="carousel slide" data-bs-ride="carousel">
         <div id="liked-movies" class="carousel-inner"></div>
@@ -73,11 +73,22 @@
         </button>
       </div>
     </div>
-    <div id="liked-shows" class="container">
+
+    <div class="container">
       <div class="row-title">
-        <h3>Your liked tv shows</h3>
+        <h3>Your Liked TV Shows:</h3>
       </div>
-      <div id="liked-shows" class="media-container"></div>
+      <div id="liked-tv-carousel" class="carousel slide" data-bs-ride="carousel">
+        <div id="liked-shows" class="carousel-inner"></div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#liked-tv-carousel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#liked-tv-carousel" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
     </div>
 
     <div class="modal fade" id="followerModal" tabindex="-1" aria-labelledby="followerLabel" aria-hidden="true">

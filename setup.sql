@@ -184,8 +184,8 @@ INSERT INTO liked (movie_id, account_id) VALUES (200, 5);
 INSERT INTO liked (movie_id, account_id) VALUES (400, 5);
 
 -- add liked tv shows for user1
-INSERT INTO liked (tv_id, account_id) VALUES (1000, 1);
-INSERT INTO liked (tv_id, account_id) VALUES (3000, 1);
+INSERT INTO liked (tv_id, account_id) VALUES (1405, 1);
+INSERT INTO liked (tv_id, account_id) VALUES (76479, 1);
 
 -- add liked tv shows for user2
 INSERT INTO liked (tv_id, account_id) VALUES (2000, 2);
