@@ -19,73 +19,78 @@
   <body class="bg-dark">
     <div id="nav-content"></div>
 
-    <div id="user-content" class="row">
-      <div id="user-welcome" class="col-sm-6 mb-3 mb-sm-0">
-        <div id="welcome-card" class="card text-bg-secondary p-3">
-          <h1 id="welcome-content" class="card-title"></h1>
-        </div>
-        <div class="container">
-          <div id="friends" class="row">
-            <div class="col-md-auto">
+    <div id="user-content" class="row gutters-sm">
+      <div id="user-welcome" class="col-md-3 mb-3">
+        <div id="welcome-card" class="card text-bg-secondary border-light p-3">
+          <div id="welcome-content" class="d-flex flex-column align-items-center text-center">
+            <div class="mt-3">
+              <h3 id="welcome-name"></h3>
+              <p id="movie-count">8 liked movies</p>
+              <p id="show-count">10 liked tv shows</p>
               <button id="followerButton" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#followerModal"></button>
-            </div>
-            <div class="col-md-auto">
               <button id="followingButton" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#followingModal"></button>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="modal fade" id="followerModal" tabindex="-1" aria-labelledby="followerLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="followerLabel">Followers:</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <ul id="follower-list" class="list-group list-group-flush"></ul>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="modal fade" id="followingModal" tabindex="-1" aria-labelledby="followingLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="followingLabel">Following:</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <ul id="following-list" class="list-group list-group-flush"></ul>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div id="user-info" class="col-sm-6">
-        <div id="info-card" class="card text-bg-secondary p-3">
-          <h3 id="info-content" class="card-title" style="margin-bottom: 10px;">Your account information:</h3>
-          <ul id="username-group" class="list-group list-group-horizontal">
-            <li id="username" class="list-group-item">Username:</li>
-            <li id="username-data" class="list-group-item"></li>
-          </ul>
-          <ul id="display-name-group" class="list-group list-group-horizontal">
-            <li id="display-name" class="list-group-item">Display name:</li>
-            <li id="display-name-data" class="list-group-item"></li>
-          </ul>
+        <div id="info-card" class="card text-bg-secondary border-light p-3">
+          <div class="card-body">
+            <h4 id="info-content" class="card-title" style="margin-bottom: 10px;">Your account information:</h4>
+            <hr>
+            <div class="row">
+              <div class="col-sm-3">
+                <h5>Username</h5>
+              </div>
+              <div id="user-name" class="col-sm-9"></div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="col-sm-3">
+                <h5>Display Name</h5>
+              </div>
+              <div id="display-name" class="col-sm-9"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div id="follower-content"></div>
+    <div class="modal fade" id="followerModal" tabindex="-1" aria-labelledby="followerLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="followerLabel">Followers:</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <ul id="follower-list" class="list-group list-group-flush"></ul>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="followingModal" tabindex="-1" aria-labelledby="followingLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="followingLabel">Following:</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <ul id="following-list" class="list-group list-group-flush"></ul>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script type="module" src="account.js"></script>
   </body>
 </html>

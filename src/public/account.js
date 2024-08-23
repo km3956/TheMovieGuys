@@ -40,13 +40,13 @@ async function fetchUserInfo(config) {
     displayUserInfo(data);
 
     async function displayUserInfo(data) {
-        let welcomeName = document.getElementById("welcome-content");
+        let welcomeName = document.getElementById("welcome-name");
         welcomeName.textContent = `Welcome ${data.username}`;
 
-        let usernameData = document.getElementById("username-data");
+        let usernameData = document.getElementById("user-name");
         usernameData.textContent = data.username;
 
-        let displayNameData = document.getElementById("display-name-data");
+        let displayNameData = document.getElementById("display-name");
         displayNameData.textContent = "{placeholder}";
     }
 }
