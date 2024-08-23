@@ -36,7 +36,7 @@ async function fetchMovies(config, search) {
   let allMovies = [];
   let data = {};
   for (let i = 1; i <= 10; i++) {
-    let movies = `${api_url}search/movie?&language=en-US&page=1&include_adult=true&query=${search}`;
+    let movies = `${api_url}search/movie?&language=en-US&page=1&query=${search}`;
     try {
       let response = await fetch(movies, {
         headers: {
@@ -54,7 +54,7 @@ async function fetchMovies(config, search) {
 
 async function fetchShows(config, search) {
   let { api_url, api_read_token } = config;
-  let tvShows = `${api_url}search/tv?&language=en-US&page=1&include_adult=true&query=${search}`;
+  let tvShows = `${api_url}search/tv?&language=en-US&page=1&query=${search}`;
   try {
     let response = await fetch(tvShows, {
       headers: {
@@ -70,7 +70,7 @@ async function fetchShows(config, search) {
 
 async function fetchPeople(config, search) {
   let { api_url, api_read_token } = config;
-  let people = `${api_url}search/person?&include_adult=true&query=${search}`;
+  let people = `${api_url}search/person?&query=${search}`;
   try {
     let response = await fetch(people, {
       headers: {
@@ -78,7 +78,7 @@ async function fetchPeople(config, search) {
       },
     });
     let data = await response.json();
-    displayPeopleResults(data.results, "results-container");
+    displayPeopleResults(data.results, "results-container", config);
   } catch (error) {
     console.error("Error fetching Actor/Actress:", error);
   }
@@ -109,15 +109,20 @@ function displayResults(results, containerId) {
   cardContainer.appendChild(rowContainer);
 }
 
-function displayPeopleResults(results, containerId) {
+async function displayPeopleResults(results, containerId, config) {
   let cardContainer = document.getElementById(containerId);
-  cardContainer.innerHTML = ""; // Clear previous results
-  console.log(results);
 
-  results.forEach((result) => {
+  const cardsPerSlide = 5;
+
+  let { api_url, api_read_token } = config;
+
+  results.forEach(async (result) => {
     let nameElement = document.createElement("h1");
     nameElement.textContent = result.name;
     nameElement.className = "left-aligned-text";
+
+    let actorId = result.id;
+    console.log(result.name, result.id);
 
     let imgElement = document.createElement("img");
     if (result.profile_path === null) {
@@ -130,28 +135,67 @@ function displayPeopleResults(results, containerId) {
     imgElement.height = 375;
 
     let knownElement = document.createElement("h2");
-    knownElement.textContent = "Known for: ";
-    knownElement.className = "left-aligned-text tabbed-text";
+    knownElement.textContent = "Appears in: ";
+    knownElement.className = "left-aligned-text";
 
-    let rowContainer = document.createElement("div");
-    rowContainer.className = "row centered-row";
+    let credits = `${api_url}person/${actorId}/combined_credits`;
+    try {
+      let response = await fetch(credits, {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      });
+      let data = await response.json();
 
-    result.known_for.forEach((movie) => {
-      let card = createCard(movie);
-      let col = document.createElement("div");
-      col.className = "col-md-4";
-      col.appendChild(card);
-      rowContainer.appendChild(col);
-    });
-    let personContainer = document.createElement("div");
-    personContainer.className = "person-container";
+      let rowContainer = document.createElement("div");
+      rowContainer.className = "row centered-row";
 
-    personContainer.appendChild(nameElement);
-    personContainer.appendChild(imgElement);
-    personContainer.appendChild(knownElement);
-    personContainer.appendChild(rowContainer);
+      let carouselOuter = document.createElement("div");
+      let carouselInner = document.createElement("div");
+      let carouselID =
+        "id" + Math.floor(10000 + Math.random() * 90000).toString();
 
-    cardContainer.appendChild(personContainer);
+      carouselOuter.className = "carousel carousel-light slide";
+      carouselOuter.setAttribute("id", carouselID);
+      carouselOuter.setAttribute("data-bs-interval", "false");
+      carouselInner.className = "carousel-inner";
+
+      data.cast.forEach((credit, index) => {
+        if (index % cardsPerSlide === 0) {
+          let carouselItem = document.createElement("div");
+          carouselItem.className =
+            index === 0 ? "carousel-item active" : "carousel-item";
+          carouselInner.appendChild(carouselItem);
+
+          let childRow = document.createElement("div");
+          childRow.className = "row";
+          carouselItem.appendChild(childRow);
+        }
+
+        let card = createCard(credit);
+        carouselInner.lastChild.firstChild.appendChild(card);
+      });
+
+      carouselOuter.appendChild(carouselInner);
+
+      let carouselPrev = createCarouselNav("prev", carouselID);
+      let carouselNext = createCarouselNav("next", carouselID);
+
+      carouselOuter.appendChild(carouselPrev);
+      carouselOuter.appendChild(carouselNext);
+
+      let personContainer = document.createElement("div");
+      personContainer.className = "person-container";
+
+      personContainer.appendChild(nameElement);
+      personContainer.appendChild(imgElement);
+      personContainer.appendChild(knownElement);
+      personContainer.appendChild(carouselOuter);
+
+      cardContainer.appendChild(personContainer);
+    } catch (error) {
+      console.error("Error fetching Actor/Actress:", error);
+    }
   });
 }
 

@@ -1,6 +1,13 @@
-DROP DATABASE IF EXISTS themovieguys;
 CREATE DATABASE themovieguys;
 \c themovieguys
+DO $$
+DECLARE
+    r RECORD;
+BEGIN
+    FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
+        EXECUTE 'DROP TABLE IF EXISTS public.' || quote_ident(r.tablename) || ' CASCADE';
+    END LOOP;
+END $$;
 
 CREATE TABLE accounts (
 	id SERIAL PRIMARY KEY,
@@ -87,23 +94,23 @@ INSERT INTO reviews (movie_id, account_id, rating, comment) VALUES (533535, 5, 3
 INSERT INTO reviews (movie_id, account_id, rating, comment) VALUES (200, 5, 3.1, 'Good, but I probably wouldn''t watch it again');
 
 -- add reviews from user1 for tv
-INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES (3000, 1, 3.6, 'This tv show was overall mediocre');
+INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES (247174, 1, 3.6, 'This tv show was overall mediocre');
 INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES (2000, 1, 4.8, 'Best cinematography I''ve ever seen');
 
 -- add reviews from user2 for tv
-INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES (3000, 2, 2.1, 'Very boring tv show');
+INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES (247174, 2, 2.1, 'Very boring tv show');
 INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES (2000, 2, 1.0, 'Worst tv show I''ve ever seen');
 
 -- add reviews from user3 for tv
-INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES (3000, 3, 5.0, 'No better tv show exists');
+INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES (247174, 3, 5.0, 'No better tv show exists');
 INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES (2000, 3, 2.4, 'I fell asleep while watching');
 
 -- add reviews from user4 for tv
-INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES (3000, 4, 3.9, 'A solid tv show');
+INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES (247174, 4, 3.9, 'A solid tv show');
 INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES (2000, 4, 4.5, 'It was nearly perfect');
 
 -- add reviews from user5 for tv
-INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES (3000, 5, 3.0, 'Not my favorite, but still decent');
+INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES (247174, 5, 3.0, 'Not my favorite, but still decent');
 INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES (2000, 5, 3.1, 'Good, but I probably wouldn''t watch it again');
 
 -- add queued movies for user1

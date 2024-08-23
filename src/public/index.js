@@ -159,15 +159,27 @@ function createCard(result) {
 
   let relevantDate = document.createElement("p");
   if (result.hasOwnProperty("release_date")) {
-    relevantDate.textContent = `Release Date: ${result.release_date}`;
+    let inputDate = result.release_date;
+    if (inputDate) {
+      let dateParts = inputDate.split("-");
+      let formattedDate = `${dateParts[1]}/${dateParts[2]}/${dateParts[0]}`;
+      relevantDate.textContent = `Release Date: ${formattedDate}`;
+    }
   } else {
-    relevantDate.textContent = `First Air Date: ${result.first_air_date}`;
+    let inputDate = result.first_air_date;
+    if (inputDate) {
+      let dateParts = inputDate.split("-");
+      let formattedDate = `${dateParts[1]}/${dateParts[2]}/${dateParts[0]}`;
+      relevantDate.textContent = `First Air Date: ${formattedDate}`;
+    }
   }
 
   let overview = document.createElement("p");
   if (result.overview.length > 100) {
     var shortText = result.overview.substr(0, 120) + "...";
     overview.textContent = shortText;
+  } else if (result.overview.length === 0) {
+    overview.textContent = "No overview available.";
   }
 
   cardText.append(title);

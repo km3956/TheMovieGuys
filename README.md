@@ -9,6 +9,6 @@ Dakota Bender, dwb62@drexel.edu
 ## Run our project:
 
 1. npm i
-2. npm run setup, enter postgres password
-3. npm run start
+2. npm run setup:dev, enter postgres password
+3. npm run start:dev
 4. Visit localhost:3000

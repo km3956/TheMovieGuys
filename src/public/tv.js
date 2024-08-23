@@ -69,9 +69,8 @@ function createCastCard(result) {
     img.src = "images/NoImageAvailable.jpg";
   };
 
-  let name = document.createElement("a");
+  let name = document.createElement("p");
   name.textContent = result.name;
-  name.href = `person.html?id=${result.id}`;
   name.className = "person-name";
 
   let castCharacter = document.createElement("p");
@@ -153,6 +152,121 @@ function displayResults(results, containerId) {
   cardContainer.appendChild(carouselOuter);
 }
 
+function createStarRating(rating) {
+  let starContainer = document.createElement("div");
+  starContainer.className = "star-rating";
+
+  let fullStars = Math.floor(rating);
+  let emptyStars = 5 - fullStars;
+
+  for (let i = 0; i < fullStars; i++) {
+    let star = document.createElement("img");
+    star.src = "./images/full-star.png";
+    star.alt = "Full Star";
+    star.className = "star";
+    starContainer.appendChild(star);
+  }
+
+  for (let i = 0; i < emptyStars; i++) {
+    let star = document.createElement("img");
+    star.src = "./images/empty-star.png";
+    star.alt = "Empty Star";
+    star.className = "star";
+    starContainer.appendChild(star);
+  }
+
+  return starContainer;
+}
+
+function showRatingForm(movieId) {
+  let modal = document.createElement("div");
+  modal.className = "modal";
+
+  let modalContent = document.createElement("div");
+  modalContent.className = "modal-content";
+
+  let closeButton = document.createElement("span");
+  closeButton.className = "close-button";
+  closeButton.textContent = "×";
+
+  let header = document.createElement("h2");
+  header.textContent = "Rate this Movie";
+
+  let ratingLabel = document.createElement("label");
+  ratingLabel.setAttribute("for", "rating");
+  ratingLabel.textContent = "Rating (1-5 stars):";
+
+  let ratingInput = document.createElement("input");
+  ratingInput.type = "number";
+  ratingInput.id = "rating";
+  ratingInput.name = "rating";
+  ratingInput.min = "1";
+  ratingInput.max = "5";
+  ratingInput.required = true;
+
+  let commentLabel = document.createElement("label");
+  commentLabel.setAttribute("for", "comment");
+  commentLabel.textContent = "Comment:";
+
+  let commentTextarea = document.createElement("textarea");
+  commentTextarea.id = "comment";
+  commentTextarea.name = "comment";
+  commentTextarea.required = true;
+
+  let submitButton = document.createElement("button");
+  submitButton.id = "submit-review";
+  submitButton.textContent = "Submit";
+
+  modalContent.appendChild(closeButton);
+  modalContent.appendChild(header);
+  modalContent.appendChild(ratingLabel);
+  modalContent.appendChild(ratingInput);
+  modalContent.appendChild(commentLabel);
+  modalContent.appendChild(commentTextarea);
+  modalContent.appendChild(submitButton);
+
+  modal.appendChild(modalContent);
+  document.body.appendChild(modal);
+
+  submitButton.addEventListener("click", async () => {
+    let rating = ratingInput.value;
+    let comment = commentTextarea.value;
+
+    let response = await fetch("/check-login", {
+      method: "GET",
+      credentials: "include",
+    });
+
+    if (response.ok) {
+      let reviewResponse = await fetch("/submit-review", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          rating: rating,
+          comment: comment,
+          tvId: tvId,
+        }),
+      });
+
+      if (reviewResponse.ok) {
+        alert("Review submitted successfully!");
+        modal.remove();
+      } else {
+        alert("Error submitting review. Please try again later.");
+      }
+    } else {
+      alert("You need to log in to rate this movie.");
+    }
+  });
+
+  closeButton.addEventListener("click", () => {
+    console.log("Close button clicked");
+    modal.remove();
+  });
+}
+
 function createTVDetails(tv, providerData, castData, reviewsData) {
   let tvContainer = document.getElementById("tv-details");
   tvContainer.textContent = "";
@@ -188,8 +302,12 @@ function createTVDetails(tv, providerData, castData, reviewsData) {
 
   let img = document.createElement("img");
   img.className = "tv-poster";
-  img.src = `https://image.tmdb.org/t/p/w500${tv.poster_path}`;
+  img.src = `https://image.tmdb.org/t/p/w342${tv.poster_path}`;
   img.alt = `${tv.name} poster`;
+
+  if (tv.backdrop_path) {
+    detailsRow.style.backgroundImage = `url(https://image.tmdb.org/t/p/w500${tv.backdrop_path})`;
+  }
 
   let info = document.createElement("div");
   info.className = "tv-info";
@@ -212,9 +330,6 @@ function createTVDetails(tv, providerData, castData, reviewsData) {
   } else {
     overview.textContent = `Overview: ${tv.overview}`;
   }
-
-  let lineBreak = document.createElement("br");
-  let emptyDiv = document.createElement("div");
 
   info.appendChild(firstAirDate);
   info.appendChild(genres);
@@ -262,47 +377,87 @@ function createTVDetails(tv, providerData, castData, reviewsData) {
 
   detailsRow.appendChild(img);
   detailsRow.appendChild(info);
+  tvContainer.appendChild(title);
+  tvContainer.appendChild(buttonRow);
+  tvContainer.appendChild(detailsRow);
 
-  if (castData.results !== 0) {
-    displayResults(castData.cast, "cast-details");
+  if (castData.cast && castData.cast.length !== 0) {
+    let castSection = document.createElement("div");
+    castSection.className = "cast-section";
+
+    let castTitle = document.createElement("h2");
+    castTitle.textContent = "Cast";
+    castSection.appendChild(castTitle);
+
+    let carouselOuter = document.createElement("div");
+    let carouselInner = document.createElement("div");
+    let carouselID = "castCarousel";
+
+    carouselOuter.className = "carousel carousel-light slide";
+    carouselOuter.setAttribute("id", carouselID);
+    carouselOuter.setAttribute("data-bs-interval", "false");
+    carouselInner.className = "carousel-inner";
+
+    let cardsPerSlide = 5;
+    castData.cast.forEach((castMember, index) => {
+      if (index % cardsPerSlide === 0) {
+        let carouselItem = document.createElement("div");
+        if (index === 0) {
+          carouselItem.className = "carousel-item active";
+        } else {
+          carouselItem.className = "carousel-item";
+        }
+        carouselInner.appendChild(carouselItem);
+        let childRow = document.createElement("div");
+        childRow.className = "row";
+        carouselItem.appendChild(childRow);
+      }
+
+      let castItem = createCastCard(castMember);
+      carouselInner.lastChild.firstChild.appendChild(castItem);
+    });
+
+    carouselOuter.appendChild(carouselInner);
+
+    let carouselPrev = createCarouselNav("prev", carouselID);
+    let carouselNext = createCarouselNav("next", carouselID);
+
+    carouselOuter.appendChild(carouselPrev);
+    carouselOuter.appendChild(carouselNext);
+
+    castSection.appendChild(carouselOuter);
+    tvContainer.appendChild(castSection);
   }
 
-  let reviewsSection = document.createElement("div");
-  reviewsSection.className = "reviews-section";
-
   if (reviewsData && reviewsData.length !== 0) {
+    let reviewsSection = document.createElement("section");
+    reviewsSection.className = "reviews-section";
+
     let reviewsTitle = document.createElement("h2");
     reviewsTitle.textContent = "Reviews";
     reviewsSection.appendChild(reviewsTitle);
 
     reviewsData.forEach((review) => {
-      let reviewContainer = document.createElement("div");
-      reviewContainer.className = "review";
+      let reviewCard = document.createElement("article");
+      reviewCard.className = "review-card";
 
-      let reviewer = document.createElement("p");
-      reviewer.textContent = `Reviewer: ${review.author}`;
-      reviewer.className = "reviewer";
+      let reviewer = document.createElement("h3");
+      reviewer.textContent = review.author;
+      reviewer.className = "review-author";
 
-      let rating = document.createElement("p");
-      rating.textContent = `Rating: ${review.rating}`;
-      rating.className = "review-rating";
+      let ratingContainer = createStarRating(review.rating);
+      ratingContainer.className = "review-rating";
 
       let content = document.createElement("p");
       content.textContent = review.comment;
       content.className = "review-content";
 
-      reviewContainer.appendChild(reviewer);
-      reviewContainer.appendChild(rating);
-      reviewContainer.appendChild(content);
+      reviewCard.appendChild(reviewer);
+      reviewCard.appendChild(ratingContainer);
+      reviewCard.appendChild(content);
 
-      reviewsSection.appendChild(reviewContainer);
+      reviewsSection.appendChild(reviewCard);
     });
+    tvContainer.appendChild(reviewsSection);
   }
-
-  tvContainer.appendChild(title);
-  tvContainer.appendChild(lineBreak);
-  tvContainer.appendChild(buttonRow);
-  tvContainer.appendChild(lineBreak);
-  tvContainer.appendChild(detailsRow);
-  tvContainer.appendChild(reviewsSection);
 }
