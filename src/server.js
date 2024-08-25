@@ -394,6 +394,28 @@ app.get("/get-user", async (req, res) => {
   // return display name later on as well
 });
 
+app.get("/get-user-id", async (req, res) => {
+  let token = req.cookies.token;
+  if (!token || !tokenStorage[token]) {
+    return res.status(401).send("User not logged in");
+  }
+
+  let username = tokenStorage[token];
+
+  try {
+    let userQuery = await pool.query(
+      "SELECT id FROM accounts WHERE username = $1",
+      [username],
+    );
+
+    let userId = userQuery.rows[0].id;
+
+    return res.json({ id: userId });
+  } catch (error) {
+    return res.status(500).send("Error getting userId");
+  }
+});
+
 app.get("/get-user/:id", async (req, res) => {
   let id = req.params.id;
 
@@ -493,5 +515,52 @@ app.get("/get-liked-shows", async (req, res) => {
     return res.json(result.rows);
   } catch (error) {
     return res.status(500).send("Error getting liked movies!");
+  }
+});
+
+app.get("/get-user-search/:input", async (req, res) => {
+  let token = req.cookies.token;
+  let search = req.params.input;
+
+  if (!token || !tokenStorage[token]) {
+    return res.status(401).send("User not logged in");
+  }
+
+  try {
+    let result = await pool.query(
+      `SELECT id, username
+      FROM accounts
+      WHERE username LIKE $1;`,
+      [`%${search}%`],
+    );
+    return res.json(result.rows);
+  } catch (error) {
+    return res.status(500).send("Error getting search results!");
+  }
+});
+
+app.post("/add-friend", async (req, res) => {
+  let token = req.cookies.token;
+  if (!token || !tokenStorage[token]) {
+    return res.status(401).send("User not logged in");
+  }
+
+  let username = tokenStorage[token];
+  let { followingId } = req.body;
+
+  try {
+    let userQuery = await pool.query(
+      "SELECT id FROM accounts WHERE username = $1",
+      [username],
+    );
+    let userId = userQuery.rows[0].id;
+
+    await pool.query(
+      "INSERT INTO friends (follower_id, following_id) VALUES ($1, $2);",
+      [userId, followingId],
+    );
+    return res.status(200).send("Friend added");
+  } catch (error) {
+    return res.status(500).send("Error adding friend");
   }
 });
