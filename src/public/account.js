@@ -7,6 +7,13 @@ document.addEventListener("DOMContentLoaded", () => {
       fetchFollowing(config);
       fetchLikedMovies(config);
       fetchLikedShows(config);
+
+      let searchFriendsBtn = document.getElementById("searchFriendsBtn");
+      searchFriendsBtn.addEventListener("click", ()=> {
+                let input = document.getElementById("searchFriendsInput");
+                fetchSearchFriends(config, input.value);
+      });
+
     } else {
       // redirect user to login page
       location.href = "./login.html";
@@ -245,4 +252,110 @@ function createCard(result) {
   card.appendChild(cardImgDiv);
 
   return card;
+}
+
+async function fetchSearchFriends(config, input) {
+  let parent = document.getElementById("searchResults");
+  let error = false;
+  let errorMsg = document.getElementById("errormessage");
+  
+  while (parent.firstChild) {
+    parent.removeChild(parent.firstChild);
+  }
+
+  if (input.length != 0) {
+    let response = await fetch(`/get-user-search/${input}`);
+    let searchResults = await response.json();
+
+    let friendsResult = await fetch("/get-following");
+    let currentFriends = (await friendsResult.json()).following;
+
+    let currentUser = await fetch("/get-user-id");
+    let currentUserId = (await currentUser.json()).id;
+    
+    console.log(currentUserId);
+
+    let followingIds = [];
+    for (let i = 0; i < currentFriends.length; i++) {
+      followingIds.push(currentFriends[i].following_id);
+    }
+    followingIds.push(currentUserId);
+
+    let result = [];
+
+    for (let j = 0; j < searchResults.length; j++) {
+      let userId = searchResults[j].id;
+      if (!followingIds.includes(userId)) {
+        result.push(searchResults[j]);
+      }
+    }
+
+    if (result.length != 0) {
+      if (errorMsg) {
+        errorMsg.remove();
+      }
+
+      for (let user of result) {
+        let newItem = document.createElement("li");
+        let username = document.createElement("span");
+        let addButton = document.createElement("button");
+
+        newItem.className = "list-group-item d-flex justify-content-between align-items-center"; 
+        username.textContent = user.username;
+
+        
+        addButton.textContent = "+";
+        addButton.className = "btn btn-success btn-sm";
+        addButton.setAttribute("data-id", user.id)
+        addButton.onclick = async function () {
+          addButton.textContent = "☑️";
+          this.disabled = true;
+
+          let reviewResponse = await fetch("/add-friend", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              followingId: user.id,
+            }),
+          });
+          if (reviewResponse.ok) {
+            alert("Friend added!");
+          } else {
+            alert("Error adding friend! Please try again later.");
+          }
+        };
+
+        newItem.appendChild(username);
+        newItem.appendChild(addButton);
+        parent.append(newItem);
+      }
+    }
+    else {
+      error = true;
+    }
+  }
+  else {
+    error = true;
+  }
+
+  if (error) {
+    let statusDiv = document.getElementById("status");
+
+    if (!errorMsg) {
+      let p = document.createElement("p");
+      p.textContent = "No Results!";
+      p.setAttribute("id", "errormessage");
+      p.classList.add(
+        "p-3",
+        "text-primary-emphasis",
+        "bg-danger-subtle",
+        "border",
+        "border-danger-subtle",
+        "rounded-3",
+      );
+      statusDiv.append(p);  
+    }
+  }
 }
