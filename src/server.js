@@ -409,12 +409,11 @@ app.get("/get-user-id", async (req, res) => {
     );
 
     let userId = userQuery.rows[0].id;
-    
+
     return res.json({ id: userId });
   } catch (error) {
     return res.status(500).send("Error getting userId");
   }
-
 });
 
 app.get("/get-user/:id", async (req, res) => {
@@ -555,7 +554,7 @@ app.post("/add-friend", async (req, res) => {
       [username],
     );
     let userId = userQuery.rows[0].id;
-    
+
     await pool.query(
       "INSERT INTO friends (follower_id, following_id) VALUES ($1, $2);",
       [userId, followingId],

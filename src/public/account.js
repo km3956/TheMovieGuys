@@ -9,11 +9,10 @@ document.addEventListener("DOMContentLoaded", () => {
       fetchLikedShows(config);
 
       let searchFriendsBtn = document.getElementById("searchFriendsBtn");
-      searchFriendsBtn.addEventListener("click", ()=> {
-                let input = document.getElementById("searchFriendsInput");
-                fetchSearchFriends(config, input.value);
+      searchFriendsBtn.addEventListener("click", () => {
+        let input = document.getElementById("searchFriendsInput");
+        fetchSearchFriends(config, input.value);
       });
-
     } else {
       // redirect user to login page
       location.href = "./login.html";
@@ -258,7 +257,7 @@ async function fetchSearchFriends(config, input) {
   let parent = document.getElementById("searchResults");
   let error = false;
   let errorMsg = document.getElementById("errormessage");
-  
+
   while (parent.firstChild) {
     parent.removeChild(parent.firstChild);
   }
@@ -272,7 +271,7 @@ async function fetchSearchFriends(config, input) {
 
     let currentUser = await fetch("/get-user-id");
     let currentUserId = (await currentUser.json()).id;
-    
+
     console.log(currentUserId);
 
     let followingIds = [];
@@ -300,13 +299,13 @@ async function fetchSearchFriends(config, input) {
         let username = document.createElement("span");
         let addButton = document.createElement("button");
 
-        newItem.className = "list-group-item d-flex justify-content-between align-items-center"; 
+        newItem.className =
+          "list-group-item d-flex justify-content-between align-items-center";
         username.textContent = user.username;
 
-        
         addButton.textContent = "+";
         addButton.className = "btn btn-success btn-sm";
-        addButton.setAttribute("data-id", user.id)
+        addButton.setAttribute("data-id", user.id);
         addButton.onclick = async function () {
           addButton.textContent = "☑️";
           this.disabled = true;
@@ -331,12 +330,10 @@ async function fetchSearchFriends(config, input) {
         newItem.appendChild(addButton);
         parent.append(newItem);
       }
-    }
-    else {
+    } else {
       error = true;
     }
-  }
-  else {
+  } else {
     error = true;
   }
 
@@ -355,7 +352,7 @@ async function fetchSearchFriends(config, input) {
         "border-danger-subtle",
         "rounded-3",
       );
-      statusDiv.append(p);  
+      statusDiv.append(p);
     }
   }
 }
