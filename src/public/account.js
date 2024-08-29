@@ -2,16 +2,16 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchConfig().then(async (config) => {
     let loginResult = await checkLogin();
     if (loginResult.ok) {
-      fetchUserInfo(config);
-      fetchFollowers(config);
-      fetchFollowing(config);
+      fetchUserInfo();
+      fetchFollowers();
+      fetchFollowing();
       fetchLikedMovies(config);
       fetchLikedShows(config);
 
       let searchFriendsBtn = document.getElementById("searchFriendsBtn");
       searchFriendsBtn.addEventListener("click", () => {
         let input = document.getElementById("searchFriendsInput");
-        fetchSearchFriends(config, input.value);
+        fetchSearchFriends(input.value);
       });
     } else {
       // redirect user to login page
@@ -39,7 +39,7 @@ async function checkLogin() {
   return response;
 }
 
-async function fetchUserInfo(config) {
+async function fetchUserInfo() {
   let result = await fetch("/get-user");
   let data = await result.json();
   displayUserInfo(data);
@@ -56,7 +56,7 @@ async function fetchUserInfo(config) {
   }
 }
 
-async function fetchFollowers(config) {
+async function fetchFollowers() {
   let result = await fetch("/get-followers");
   let data = await result.json();
   displayFollowers(data);
@@ -74,13 +74,17 @@ async function fetchFollowers(config) {
 
       let newItem = document.createElement("li");
       newItem.className = "list-group-item";
-      newItem.textContent = user.username;
+      let userLink = document.createElement("a");
+      userLink.href = `/profile/${user.username}`;
+      userLink.textContent = user.username;
+
+      newItem.appendChild(userLink);
       followerList.append(newItem);
     }
   }
 }
 
-async function fetchFollowing(config) {
+async function fetchFollowing() {
   let result = await fetch("/get-following");
   let data = await result.json();
   displayFollowers(data);
@@ -98,7 +102,11 @@ async function fetchFollowing(config) {
 
       let newItem = document.createElement("li");
       newItem.className = "list-group-item";
-      newItem.textContent = user.username;
+      let userLink = document.createElement("a");
+      userLink.href = `/profile/${user.username}`;
+      userLink.textContent = user.username;
+
+      newItem.appendChild(userLink);
       followingList.append(newItem);
     }
   }
@@ -253,7 +261,7 @@ function createCard(result) {
   return card;
 }
 
-async function fetchSearchFriends(config, input) {
+async function fetchSearchFriends(input) {
   let parent = document.getElementById("searchResults");
   let error = false;
   let errorMsg = document.getElementById("errormessage");
