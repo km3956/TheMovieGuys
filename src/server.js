@@ -766,6 +766,44 @@ app.get("/api/tv-details", async (req, res) => {
     });
     res.json(response.data);
   } catch (error) {
-    res.status(500).send("Error fetching movie details");
+    res.status(500).send("Error fetching tv details");
+  }
+});
+
+app.get("/api/movie-provider", async (req, res) => {
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let movie_id = req.query.id;
+    let response = await axios.get(
+      `${api_url}movie/${movie_id}/watch/providers?`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send("Error fetching movie providers");
+  }
+});
+
+app.get("/api/movie-cast", async (req, res) => {
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let movie_id = req.query.id;
+    let response = await axios.get(
+      `${api_url}movie/${movie_id}/credits?&language=en-US`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send("Error fetching movie cast");
   }
 });

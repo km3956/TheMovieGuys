@@ -145,7 +145,7 @@ async function fetchMovieDetail(movie_id) {
   }
 }
 
-async function fetchLikedShows(config) {
+async function fetchLikedShows() {
   let result = await fetch("/get-liked-shows");
   let shows = await result.json();
 

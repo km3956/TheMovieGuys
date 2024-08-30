@@ -1,52 +1,25 @@
 document.addEventListener("DOMContentLoaded", () => {
-  fetchConfig().then((config) => {
-    let urlParams = new URLSearchParams(window.location.search);
-    let movieId = urlParams.get("id");
-    if (movieId) {
-      fetchMovieDetails(config, movieId);
-    } else {
-      console.error("No movie ID found in URL");
-    }
-  });
+  let urlParams = new URLSearchParams(window.location.search);
+  let movieId = urlParams.get("id");
+  if (movieId) {
+    fetchMovieDetails(movieId);
+  } else {
+    console.error("No movie ID found in URL");
+  }
 });
 
-async function fetchConfig() {
+async function fetchMovieDetails(movie_id) {
   try {
-    let response = await fetch("env.json");
-    let config = await response.json();
-    return config;
-  } catch (error) {
-    console.error("Error loading configuration:", error);
-  }
-}
-
-async function fetchMovieDetails(config, movieID) {
-  let { api_url, api_read_token } = config;
-  let movieDetails = `${api_url}movie/${movieID}?&language=en-US`;
-  let movieProvider = `${api_url}movie/${movieID}/watch/providers?`;
-  let castDetail = `https://api.themoviedb.org/3/movie/${movieID}/credits?&language=en-US`;
-
-  try {
-    let response = await fetch(movieDetails, {
-      headers: {
-        Authorization: `Bearer ${api_read_token}`,
-      },
-    });
-    let provider = await fetch(movieProvider, {
-      headers: {
-        Authorization: `Bearer ${api_read_token}`,
-      },
-    });
-    let cast = await fetch(castDetail, {
-      headers: {
-        Authorization: `Bearer ${api_read_token}`,
-      },
-    });
-    let reviewsResponse = await fetch(`/movie?id=${movieID}`, {
-      headers: {
-        Authorization: `Bearer ${api_read_token}`,
-      },
-    });
+    let response = await fetch(
+      `/api/movie-details?id=${encodeURIComponent(movie_id)}`,
+    );
+    let provider = await fetch(
+      `/api/movie-provider?id=${encodeURIComponent(movie_id)}`,
+    );
+    let cast = await fetch(
+      `/api/movie-cast?id=${encodeURIComponent(movie_id)}`,
+    );
+    let reviewsResponse = await fetch(`/movie?id=${movie_id}`);
     let data = await response.json();
     let providerData = await provider.json();
     let castData = await cast.json();
