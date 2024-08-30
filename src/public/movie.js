@@ -452,8 +452,11 @@ function createMovieDetails(movie, providerData, castData, reviewsData) {
       reviewCard.className = "review-card";
 
       let reviewer = document.createElement("h3");
-      reviewer.textContent = review.author;
       reviewer.className = "review-author";
+      let reviewerLink = document.createElement("a");
+      reviewerLink.textContent = review.author;
+      reviewerLink.href = `/user/${review.author}`;
+      reviewer.appendChild(reviewerLink);
 
       let ratingContainer = createStarRating(review.rating);
       ratingContainer.className = "review-rating";
