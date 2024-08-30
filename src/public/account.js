@@ -75,7 +75,7 @@ async function fetchFollowers() {
       let newItem = document.createElement("li");
       newItem.className = "list-group-item";
       let userLink = document.createElement("a");
-      userLink.href = `/profile/${user.username}`;
+      userLink.href = `/user/${user.username}`;
       userLink.textContent = user.username;
 
       newItem.appendChild(userLink);
@@ -103,7 +103,7 @@ async function fetchFollowing() {
       let newItem = document.createElement("li");
       newItem.className = "list-group-item";
       let userLink = document.createElement("a");
-      userLink.href = `/profile/${user.username}`;
+      userLink.href = `/user/${user.username}`;
       userLink.textContent = user.username;
 
       newItem.appendChild(userLink);

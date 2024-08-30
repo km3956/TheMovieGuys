@@ -416,18 +416,32 @@ app.get("/get-user-id", async (req, res) => {
   }
 });
 
-app.get("/get-user/:id", async (req, res) => {
-  let id = req.params.id;
+app.get("/get-user/:identifier", async (req, res) => {
+  let identifier = req.params.identifier;
+  let userQuery;
 
   try {
-    let userQuery = await pool.query(
-      "SELECT username FROM accounts WHERE id = $1",
-      [id],
-    );
-    let username = userQuery.rows[0].username;
-    return res.json({ username });
+    if (!isNaN(identifier)) {
+      userQuery = await pool.query(
+        "SELECT username FROM accounts WHERE id = $1",
+        [identifier],
+      );
+    } else {
+      userQuery = await pool.query(
+        "SELECT username FROM accounts WHERE username = $1",
+        [identifier],
+      );
+    }
+
+    if (userQuery.rowCount === 0) {
+      return res.status(404).send("User not found");
+    }
+
+    let user = userQuery.rows[0];
+    return res.json(user);
   } catch (error) {
-    return res.status(500).send("Error getting requested username!");
+    console.error("Error fetching user data:", error);
+    return res.status(500).send("Error getting user data");
   }
 });
 
@@ -562,5 +576,77 @@ app.post("/add-friend", async (req, res) => {
     return res.status(200).send("Friend added");
   } catch (error) {
     return res.status(500).send("Error adding friend");
+  }
+});
+
+app.get("/user/:username", async (req, res) => {
+  let username = req.params.username;
+
+  try {
+    let userQuery = await pool.query(
+      "SELECT id, username FROM accounts WHERE username = $1",
+      [username],
+    );
+
+    if (userQuery.rowCount === 0) {
+      return res.status(404).send("User not found");
+    }
+
+    // If the user is found, serve the profile page
+    res.sendFile(path.join(__dirname, "../src/public/profilepage.html"));
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    return res.status(500).send("Error getting user profile");
+  }
+});
+
+app.get("/get-user-liked-movies", async (req, res) => {
+  let username = req.query.username;
+  console.log(username);
+  try {
+    let result = await pool.query(
+      `SELECT movie_id FROM liked
+      INNER JOIN accounts ON liked.account_id=accounts.id
+      WHERE accounts.username = $1 AND movie_id IS NOT NULL`,
+      [username],
+    );
+    return res.json(result.rows);
+  } catch (error) {
+    return res.status(500).send("Error getting liked movies!");
+  }
+});
+
+app.get("/get-user-liked-shows", async (req, res) => {
+  let username = req.query.username;
+
+  try {
+    let result = await pool.query(
+      `SELECT tv_id FROM liked
+      INNER JOIN accounts ON liked.account_id=accounts.id
+      WHERE accounts.username = $1 AND tv_id IS NOT NULL`,
+      [username],
+    );
+    return res.json(result.rows);
+  } catch (error) {
+    return res.status(500).send("Error getting liked movies!");
+  }
+});
+
+function extractId(username) {
+  const match = username.match(/\d+/);
+  return match ? parseInt(match[0], 10) : null;
+}
+
+app.get("/get-queue", async (req, res) => {
+  let username = req.query.username;
+
+  try {
+    let result = await pool.query(
+      `SELECT * FROM queue WHERE account_id = $1 and status = 'Queue'`,
+      [extractId(username)],
+    );
+    return res.json(result.rows);
+  } catch (error) {
+    return res.status(500).send("Error getting queue items!");
   }
 });
