@@ -807,3 +807,79 @@ app.get("/api/movie-cast", async (req, res) => {
     res.status(500).send("Error fetching movie cast");
   }
 });
+
+app.get("/api/multiple-new-movies", async (req, res) => {
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let page = req.query.page;
+    let response = await axios.get(
+      `${api_url}movie/now_playing?language=en-US&page=${page}`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send("Error fetching multiple new movies");
+  }
+});
+
+app.get("/api/multiple-top-movies", async (req, res) => {
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let page = req.query.page;
+    let response = await axios.get(
+      `${api_url}movie/top_rated?language=en-US&page=${page}`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send("Error fetching multiple top rated movies");
+  }
+});
+
+app.get("/api/multiple-upcoming-movies", async (req, res) => {
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let page = req.query.page;
+    let response = await axios.get(
+      `${api_url}movie/upcoming?language=en-US&page=${page}`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send("Error fetching multiple upcoming movies");
+  }
+});
+
+app.get("/api/multiple-tv-shows", async (req, res) => {
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let page = req.query.page;
+    let response = await axios.get(
+      `${api_url}trending/tv/day?language=en-US&page=${page}`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send("Error fetching multiple trending tv shows");
+  }
+});
