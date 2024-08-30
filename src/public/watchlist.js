@@ -1,20 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
-  fetchConfig().then((config) => {
-    fetchWatchedContent(config);
-  });
+  fetchWatchedContent();
 });
 
-async function fetchConfig() {
-  try {
-    let response = await fetch("env.json");
-    let config = await response.json();
-    return config;
-  } catch (error) {
-    console.error("Error loading configuration:", error);
-  }
-}
-
-async function fetchWatchedContent(config) {
+async function fetchWatchedContent() {
   let response = await fetch("/check-login", {
     method: "GET",
     credentials: "include",
@@ -27,7 +15,7 @@ async function fetchWatchedContent(config) {
 
     let data = await result.json();
 
-    displayWatchlists(data, config);
+    displayWatchlists(data);
   } else {
     let statusDiv = document.getElementById("status");
     let p = document.createElement("p");
@@ -43,7 +31,7 @@ async function fetchWatchedContent(config) {
     statusDiv.append(p);
   }
 
-  async function displayWatchlists(data, config) {
+  async function displayWatchlists(data) {
     let content = document.getElementById("watchlist-content");
 
     const watching = [];
@@ -81,10 +69,10 @@ async function fetchWatchedContent(config) {
       for (let media of watchlist) {
         let card;
         if (media.movie_id != null) {
-          let details = await fetchMovieDetail(config, media.movie_id);
+          let details = await fetchMovieDetail(media.movie_id);
           card = createCard(details);
         } else {
-          let details = await fetchTVDetail(config, media.tv_id);
+          let details = await fetchTVDetail(media.tv_id);
           card = createCard(details);
         }
         row.append(card);
@@ -96,35 +84,27 @@ async function fetchWatchedContent(config) {
     }
   }
 
-  async function fetchMovieDetail(config, movie_id) {
-    let { api_url, api_read_token } = config;
-    let movie = `${api_url}movie/${movie_id}?language=en-US`;
+  async function fetchMovieDetail(movie_id) {
     try {
-      let response = await fetch(movie, {
-        headers: {
-          Authorization: `Bearer ${api_read_token}`,
-        },
-      });
+      let response = await fetch(
+        `/api/movie-details?id=${encodeURIComponent(movie_id)}`,
+      );
       let data = await response.json();
       return data;
     } catch (error) {
-      console.error("Error fetching top shows:", error);
+      console.error("Error fetching movie details:", error);
     }
   }
 
-  async function fetchTVDetail(config, tv_id) {
-    let { api_url, api_read_token } = config;
-    let show = `${api_url}tv/${tv_id}?language=en-US`;
+  async function fetchTVDetail(tv_id) {
     try {
-      let response = await fetch(show, {
-        headers: {
-          Authorization: `Bearer ${api_read_token}`,
-        },
-      });
+      let response = await fetch(
+        `/api/tv-details?id=${encodeURIComponent(tv_id)}`,
+      );
       let data = await response.json();
       return data;
     } catch (error) {
-      console.error("Error fetching top shows:", error);
+      console.error("Error fetching tv show details:", error);
     }
   }
 

@@ -19,20 +19,32 @@
         <li class="nav-item">
           <a class="nav-link" aria-current="page" href="/index.html"> Home </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="../newreleases.html"
-            >New Releases</a
+        <li class="nav-item dropdown">
+          <a
+            class="nav-link dropdown-toggle"
+            href="#"
+            id="navbarDropdown"
+            role="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
           >
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="../topmovies.html"
-            >Top Movies</a
-          >
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="../upcomingmovies.html"
-            >Upcoming Movies</a
-          >
+            Movies
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li>
+              <a class="dropdown-item" href="../newreleases.html"
+                >New Releases</a
+              >
+            </li>
+            <li>
+              <a class="dropdown-item" href="../topmovies.html">Top Movies</a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="../upcomingmovies.html"
+                >Upcoming Movies</a
+              >
+            </li>
+          </ul>
         </li>
         <li class="nav-item">
           <a class="nav-link" aria-current="page" href="../trendingtvshows.html"
@@ -59,12 +71,14 @@
           aria-label="Search"
           name="search"
         />
-        <select id="search-type" name="type">
+        <select class="ms-2" id="search-type" name="type">
           <option value="person">Actors/Actresses</option>
           <option value="movie">Movies</option>
           <option value="tv">TV Shows</option>
         </select>
-        <button class="btn btn-outline-danger" type="submit">Search</button>
+        <button class="btn btn-outline-danger ms-2" type="submit">
+          Search
+        </button>
       </form>
       <div class="navbar-nav ml-auto">
         <a class="nav-link" aria-current="page" href="../login.html">Login</a>

@@ -1,34 +1,22 @@
-document.addEventListener("DOMContentLoaded", () => {
-  fetchConfig().then(async (config) => {
-    let loginResult = await checkLogin();
-    if (loginResult.ok) {
-      fetchUserInfo(config);
-      fetchFollowers(config);
-      fetchFollowing(config);
-      fetchLikedMovies(config);
-      fetchLikedShows(config);
+document.addEventListener("DOMContentLoaded", async () => {
+  let loginResult = await checkLogin();
+  if (loginResult.ok) {
+    fetchUserInfo();
+    fetchFollowers();
+    fetchFollowing();
+    fetchLikedMovies();
+    fetchLikedShows();
 
-      let searchFriendsBtn = document.getElementById("searchFriendsBtn");
-      searchFriendsBtn.addEventListener("click", () => {
-        let input = document.getElementById("searchFriendsInput");
-        fetchSearchFriends(config, input.value);
-      });
-    } else {
-      // redirect user to login page
-      location.href = "./login.html";
-    }
-  });
-});
-
-async function fetchConfig() {
-  try {
-    let response = await fetch("env.json");
-    let config = await response.json();
-    return config;
-  } catch (error) {
-    console.error("Error loading configuration:", error);
+    let searchFriendsBtn = document.getElementById("searchFriendsBtn");
+    searchFriendsBtn.addEventListener("click", () => {
+      let input = document.getElementById("searchFriendsInput");
+      fetchSearchFriends(input.value);
+    });
+  } else {
+    // redirect user to login page
+    location.href = "./login.html";
   }
-}
+});
 
 async function checkLogin() {
   let response = await fetch("/check-login", {
@@ -39,7 +27,7 @@ async function checkLogin() {
   return response;
 }
 
-async function fetchUserInfo(config) {
+async function fetchUserInfo() {
   let result = await fetch("/get-user");
   let data = await result.json();
   displayUserInfo(data);
@@ -56,7 +44,7 @@ async function fetchUserInfo(config) {
   }
 }
 
-async function fetchFollowers(config) {
+async function fetchFollowers() {
   let result = await fetch("/get-followers");
   let data = await result.json();
   displayFollowers(data);
@@ -74,13 +62,17 @@ async function fetchFollowers(config) {
 
       let newItem = document.createElement("li");
       newItem.className = "list-group-item";
-      newItem.textContent = user.username;
+      let userLink = document.createElement("a");
+      userLink.href = `/user/${user.username}`;
+      userLink.textContent = user.username;
+
+      newItem.appendChild(userLink);
       followerList.append(newItem);
     }
   }
 }
 
-async function fetchFollowing(config) {
+async function fetchFollowing() {
   let result = await fetch("/get-following");
   let data = await result.json();
   displayFollowers(data);
@@ -98,13 +90,17 @@ async function fetchFollowing(config) {
 
       let newItem = document.createElement("li");
       newItem.className = "list-group-item";
-      newItem.textContent = user.username;
+      let userLink = document.createElement("a");
+      userLink.href = `/user/${user.username}`;
+      userLink.textContent = user.username;
+
+      newItem.appendChild(userLink);
       followingList.append(newItem);
     }
   }
 }
 
-async function fetchLikedMovies(config) {
+async function fetchLikedMovies() {
   let result = await fetch("/get-liked-movies");
   let movies = await result.json();
 
@@ -131,21 +127,17 @@ async function fetchLikedMovies(config) {
       carouselItem.appendChild(childRow);
     }
 
-    let movieData = await fetchMovieDetail(config, movies[index].movie_id);
+    let movieData = await fetchMovieDetail(movies[index].movie_id);
     let card = createCard(movieData);
     carouselInner.lastChild.firstChild.appendChild(card);
   }
 }
 
-async function fetchMovieDetail(config, movie_id) {
-  let { api_url, api_read_token } = config;
-  let movie = `${api_url}movie/${movie_id}?language=en-US`;
+async function fetchMovieDetail(movie_id) {
   try {
-    let response = await fetch(movie, {
-      headers: {
-        Authorization: `Bearer ${api_read_token}`,
-      },
-    });
+    let response = await fetch(
+      `/api/movie-details?id=${encodeURIComponent(movie_id)}`,
+    );
     let data = await response.json();
     return data;
   } catch (error) {
@@ -153,7 +145,7 @@ async function fetchMovieDetail(config, movie_id) {
   }
 }
 
-async function fetchLikedShows(config) {
+async function fetchLikedShows() {
   let result = await fetch("/get-liked-shows");
   let shows = await result.json();
 
@@ -179,21 +171,17 @@ async function fetchLikedShows(config) {
       carouselItem.appendChild(childRow);
     }
 
-    let showData = await fetchShowDetail(config, shows[index].tv_id);
+    let showData = await fetchShowDetail(shows[index].tv_id);
     let card = createCard(showData);
     carouselInner.lastChild.firstChild.appendChild(card);
   }
 }
 
-async function fetchShowDetail(config, tv_id) {
-  let { api_url, api_read_token } = config;
-  let show = `${api_url}tv/${tv_id}?language=en-US`;
+async function fetchShowDetail(tv_id) {
   try {
-    let response = await fetch(show, {
-      headers: {
-        Authorization: `Bearer ${api_read_token}`,
-      },
-    });
+    let response = await fetch(
+      `/api/tv-details?id=${encodeURIComponent(tv_id)}`,
+    );
     let data = await response.json();
     return data;
   } catch (error) {
@@ -253,7 +241,7 @@ function createCard(result) {
   return card;
 }
 
-async function fetchSearchFriends(config, input) {
+async function fetchSearchFriends(input) {
   let parent = document.getElementById("searchResults");
   let error = false;
   let errorMsg = document.getElementById("errormessage");
