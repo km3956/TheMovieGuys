@@ -1,11 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
   let username = window.location.pathname.split("/").pop();
   fetchUserProfile(username).then(() => {
-    fetchConfig().then((config) => {
-      fetchLikedMovies(config, username);
-      fetchLikedShows(config, username);
-      fetchQueue(config, username);
-    });
+    fetchLikedMovies(username);
+    fetchLikedShows(username);
+    fetchQueue(username);
   });
 });
 
@@ -24,17 +22,7 @@ async function fetchUserProfile(username) {
   }
 }
 
-async function fetchConfig() {
-  try {
-    let response = await fetch("/env.json");
-    let config = await response.json();
-    return config;
-  } catch (error) {
-    console.error("Error loading configuration:", error);
-  }
-}
-
-async function fetchLikedMovies(config, username) {
+async function fetchLikedMovies(username) {
   try {
     let result = await fetch(`/get-user-liked-movies?username=${username}`);
     let movies = await result.json();
@@ -58,7 +46,7 @@ async function fetchLikedMovies(config, username) {
         carouselItem.appendChild(childRow);
       }
 
-      let movieData = await fetchMovieDetail(config, movies[index].movie_id);
+      let movieData = await fetchMovieDetail(movies[index].movie_id);
       let card = createCard(movieData);
       carouselInner.lastChild.firstChild.appendChild(card);
     }
@@ -67,7 +55,7 @@ async function fetchLikedMovies(config, username) {
   }
 }
 
-async function fetchLikedShows(config, username) {
+async function fetchLikedShows(username) {
   try {
     let result = await fetch(`/get-user-liked-shows?username=${username}`);
     let shows = await result.json();
@@ -91,7 +79,7 @@ async function fetchLikedShows(config, username) {
         carouselItem.appendChild(childRow);
       }
 
-      let showData = await fetchShowDetail(config, shows[index].tv_id);
+      let showData = await fetchShowDetail(shows[index].tv_id);
       let card = createCard(showData);
       carouselInner.lastChild.firstChild.appendChild(card);
     }
@@ -100,7 +88,7 @@ async function fetchLikedShows(config, username) {
   }
 }
 
-async function fetchQueue(config, username) {
+async function fetchQueue(username) {
   try {
     let result = await fetch(`/get-queue?username=${username}`);
     let queueItems = await result.json();
@@ -125,7 +113,7 @@ async function fetchQueue(config, username) {
       }
 
       let itemData = queueItems[index];
-      let card = await createQueueCard(config, itemData);
+      let card = await createQueueCard(itemData);
       carouselInner.lastChild.firstChild.appendChild(card);
     }
   } catch (error) {
@@ -133,35 +121,27 @@ async function fetchQueue(config, username) {
   }
 }
 
-async function fetchMovieDetail(config, movie_id) {
-  let { api_url, api_read_token } = config;
-  let movie = `${api_url}movie/${movie_id}?language=en-US`;
+async function fetchMovieDetail(movie_id) {
   try {
-    let response = await fetch(movie, {
-      headers: {
-        Authorization: `Bearer ${api_read_token}`,
-      },
-    });
+    let response = await fetch(
+      `/api/movie-details?id=${encodeURIComponent(movie_id)}`,
+    );
     let data = await response.json();
     return data;
   } catch (error) {
-    console.error("Error fetching movie details:", error);
+    console.error("Error fetching requested movie:", error);
   }
 }
 
-async function fetchShowDetail(config, tv_id) {
-  let { api_url, api_read_token } = config;
-  let show = `${api_url}tv/${tv_id}?language=en-US`;
+async function fetchShowDetail(tv_id) {
   try {
-    let response = await fetch(show, {
-      headers: {
-        Authorization: `Bearer ${api_read_token}`,
-      },
-    });
+    let response = await fetch(
+      `/api/tv-details?id=${encodeURIComponent(tv_id)}`,
+    );
     let data = await response.json();
     return data;
   } catch (error) {
-    console.error("Error fetching show details:", error);
+    console.error("Error fetching requested show:", error);
   }
 }
 
@@ -217,12 +197,12 @@ function createCard(result) {
   return card;
 }
 
-async function createQueueCard(config, item) {
+async function createQueueCard(item) {
   if (item.movie_id) {
-    let movieData = await fetchMovieDetail(config, item.movie_id);
+    let movieData = await fetchMovieDetail(item.movie_id);
     return createCard(movieData);
   } else {
-    let showData = await fetchShowDetail(config, item.tv_id);
+    let showData = await fetchShowDetail(item.tv_id);
     return createCard(showData);
   }
 }

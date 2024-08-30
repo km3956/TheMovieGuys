@@ -789,6 +789,22 @@ app.get("/api/movie-provider", async (req, res) => {
   }
 });
 
+app.get("/api/tv-provider", async (req, res) => {
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let tv_id = req.query.id;
+    let response = await axios.get(`${api_url}tv/${tv_id}/watch/providers?`, {
+      headers: {
+        Authorization: `Bearer ${api_read_token}`,
+      },
+    });
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send("Error fetching tv providers");
+  }
+});
+
 app.get("/api/movie-cast", async (req, res) => {
   try {
     let api_url = "https://api.themoviedb.org/3/";
@@ -805,6 +821,25 @@ app.get("/api/movie-cast", async (req, res) => {
     res.json(response.data);
   } catch (error) {
     res.status(500).send("Error fetching movie cast");
+  }
+});
+
+app.get("/api/tv-cast", async (req, res) => {
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let tv_id = req.query.id;
+    let response = await axios.get(
+      `${api_url}tv/${tv_id}/credits?&language=en-US`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send("Error fetching tv cast");
   }
 });
 
@@ -881,5 +916,90 @@ app.get("/api/multiple-tv-shows", async (req, res) => {
     res.json(response.data);
   } catch (error) {
     res.status(500).send("Error fetching multiple trending tv shows");
+  }
+});
+
+app.get("/api/searched-movies", async (req, res) => {
+  let allMovies = [];
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let search = req.query.query;
+    let response = await axios.get(
+      `${api_url}search/movie?&language=en-US&page=1&query=${search}`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    let data = response.data;
+    allMovies = allMovies.concat(data.results);
+  } catch (error) {
+    console.error("Error fetching searched movies:", error.message);
+  }
+  res.json(allMovies);
+});
+
+app.get("/api/searched-shows", async (req, res) => {
+  let allShows = [];
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let search = req.query.query;
+    let response = await axios.get(
+      `${api_url}search/tv?&language=en-US&page=1&query=${search}`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    let data = response.data;
+    allShows = allShows.concat(data.results);
+  } catch (error) {
+    console.error("Error fetching searched shows:", error.message);
+  }
+  res.json(allShows);
+});
+
+app.get("/api/searched-people", async (req, res) => {
+  let allPeople = [];
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let search = req.query.query;
+    let response = await axios.get(
+      `${api_url}search/person?&language=en-US&page=1&query=${search}`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    let data = response.data;
+    allPeople = allPeople.concat(data.results);
+  } catch (error) {
+    console.error("Error fetching searched people:", error.message);
+  }
+  res.json(allPeople);
+});
+
+app.get("/api/combined-credits", async (req, res) => {
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let actorID = req.query.actorID;
+    let response = await axios.get(
+      `${api_url}person/${actorID}/combined_credits`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    res.json(response.data);
+  } catch (error) {
+    console.error("Error fetching combined credits:", error.message);
   }
 });
