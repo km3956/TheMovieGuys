@@ -5,16 +5,6 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchTopShows();
 });
 
-async function fetchConfig() {
-  try {
-    let response = await fetch("env.json");
-    let config = await response.json();
-    return config;
-  } catch (error) {
-    console.error("Error loading configuration:", error);
-  }
-}
-
 async function fetchNewestMovies() {
   try {
     let response = await fetch("/api/newest-movies");

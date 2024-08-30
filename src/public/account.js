@@ -20,16 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-async function fetchConfig() {
-  try {
-    let response = await fetch("env.json");
-    let config = await response.json();
-    return config;
-  } catch (error) {
-    console.error("Error loading configuration:", error);
-  }
-}
-
 async function checkLogin() {
   let response = await fetch("/check-login", {
     method: "GET",
