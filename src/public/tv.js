@@ -1,55 +1,30 @@
 document.addEventListener("DOMContentLoaded", () => {
-  fetchConfig().then((config) => {
-    let urlParams = new URLSearchParams(window.location.search);
-    let tvID = urlParams.get("id");
-    if (tvID) {
-      fetchTVDetails(config, tvID);
-    } else {
-      console.error("No TV ID found in URL");
-    }
-  });
+  let urlParams = new URLSearchParams(window.location.search);
+  let tvID = urlParams.get("id");
+  if (tvID) {
+    fetchTVDetails(tvID);
+  } else {
+    console.error("No TV ID found in URL");
+  }
 });
 
-async function fetchConfig() {
+async function fetchTVDetails(tv_id) {
   try {
-    let response = await fetch("env.json");
-    let config = await response.json();
-    return config;
-  } catch (error) {
-    console.error("Error loading configuration:", error);
-  }
-}
-
-async function fetchTVDetails(config, tvID) {
-  let { api_url, api_read_token } = config;
-  let tvDetails = `${api_url}tv/${tvID}?&language=en-US`;
-  let tvProvider = `${api_url}tv/${tvID}/watch/providers?`;
-  let castDetail = `https://api.themoviedb.org/3/tv/${tvID}/credits?&language=en-US`;
-
-  try {
-    let response = await fetch(tvDetails, {
-      headers: {
-        Authorization: `Bearer ${api_read_token}`,
-      },
-    });
-    let provider = await fetch(tvProvider, {
-      headers: {
-        Authorization: `Bearer ${api_read_token}`,
-      },
-    });
-    let cast = await fetch(castDetail, {
-      headers: {
-        Authorization: `Bearer ${api_read_token}`,
-      },
-    });
-    let reviewsResponse = await fetch(`/tv?id=${tvID}`);
+    let response = await fetch(
+      `/api/tv-details?id=${encodeURIComponent(tv_id)}`,
+    );
+    let provider = await fetch(
+      `/api/tv-provider?id=${encodeURIComponent(tv_id)}`,
+    );
+    let cast = await fetch(`/api/tv-cast?id=${encodeURIComponent(tv_id)}`);
+    let reviewsResponse = await fetch(`/tv?id=${tv_id}`);
     let data = await response.json();
     let providerData = await provider.json();
     let castData = await cast.json();
     let reviewsData = await reviewsResponse.json();
     createTVDetails(data, providerData, castData, reviewsData);
   } catch (error) {
-    console.error("Error fetching show details:", error);
+    console.error("Error fetching tv details:", error);
   }
 }
 
@@ -178,7 +153,7 @@ function createStarRating(rating) {
   return starContainer;
 }
 
-function showRatingForm(movieId) {
+function showRatingForm() {
   let modal = document.createElement("div");
   modal.className = "modal";
 
@@ -279,21 +254,55 @@ function createTVDetails(tv, providerData, castData, reviewsData) {
   title.className = "tv-title";
 
   let controls = document.createElement("div");
-  controls.className = "controls";
+  controls.id = "controls";
 
   let dropdown = document.createElement("select");
   dropdown.appendChild(new Option("Choose", "Choose"));
   dropdown.appendChild(new Option("Currently Watching", "Currently Watching"));
   dropdown.appendChild(new Option("Add To Queue", "Add To Queue"));
   dropdown.appendChild(new Option("Already Watched", "Already Watched"));
-  dropdown.className = "dropdown";
+  dropdown.id = "dropdown";
 
   let rateButton = document.createElement("button");
   rateButton.textContent = "Rate";
-  rateButton.className = "rate-button";
+  rateButton.id = "rate-button";
 
   controls.appendChild(dropdown);
   controls.appendChild(rateButton);
+
+  rateButton.addEventListener("click", () => {
+    showRatingForm(movie.id);
+  });
+
+  dropdown.addEventListener("change", async (event) => {
+    let selectedOption = event.target.value;
+    console.log(selectedOption);
+    let response = await fetch("/check-login", {
+      method: "GET",
+      credentials: "include",
+    });
+    if (response.ok) {
+      if (selectedOption !== "Choose") {
+        let reviewResponse = await fetch("/submit-queue", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            status: selectedOption,
+            movieId: movie.id,
+          }),
+        });
+        if (reviewResponse.ok) {
+          alert("Queue submitted successfully!");
+        } else {
+          alert("Error submitting queue. Please try again later.");
+        }
+      } else {
+        alert("You need to log in to Queue this show.");
+      }
+    }
+  });
 
   buttonRow.appendChild(controls);
 
@@ -442,8 +451,11 @@ function createTVDetails(tv, providerData, castData, reviewsData) {
       reviewCard.className = "review-card";
 
       let reviewer = document.createElement("h3");
-      reviewer.textContent = review.author;
       reviewer.className = "review-author";
+      let reviewerLink = document.createElement("a");
+      reviewerLink.textContent = review.author;
+      reviewerLink.href = `/user/${review.author}`;
+      reviewer.appendChild(reviewerLink);
 
       let ratingContainer = createStarRating(review.rating);
       ratingContainer.className = "review-rating";
@@ -458,6 +470,7 @@ function createTVDetails(tv, providerData, castData, reviewsData) {
 
       reviewsSection.appendChild(reviewCard);
     });
+
     tvContainer.appendChild(reviewsSection);
   }
 }

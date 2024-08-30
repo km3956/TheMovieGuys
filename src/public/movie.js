@@ -218,7 +218,7 @@ function showRatingForm(movieId) {
 
 function createMovieDetails(movie, providerData, castData, reviewsData) {
   let moviesContainer = document.getElementById("movie-details");
-  moviesContainer.innerHTML = "";
+  moviesContainer.textContent = "";
 
   let buttonRow = document.createElement("div");
   buttonRow.className = "button-row";
@@ -311,7 +311,11 @@ function createMovieDetails(movie, providerData, castData, reviewsData) {
     "Genres: " + movie.genres.map((genre) => genre.name).join(", ");
 
   let overview = document.createElement("p");
-  overview.textContent = `Overview: ${movie.overview}`;
+  if (movie.overview === "") {
+    overview.textContent = `Overview: No overview available.`;
+  } else {
+    overview.textContent = `Overview: ${movie.overview}`;
+  }
 
   info.appendChild(releaseDate);
   info.appendChild(runtime);
