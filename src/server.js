@@ -1,6 +1,8 @@
+require("dotenv").config();
 let express = require("express");
+let axios = require("axios");
 let app = express();
-let env = require("../env.json");
+let keys = require("../env.json");
 let port = 3000;
 let hostname;
 let databaseConfig;
@@ -648,5 +650,87 @@ app.get("/get-queue", async (req, res) => {
     return res.json(result.rows);
   } catch (error) {
     return res.status(500).send("Error getting queue items!");
+  }
+});
+
+app.get("/api/newest-movies", async (req, res) => {
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let response = await axios.get(
+      `${api_url}movie/now_playing?language=en-US&page=1`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send("Error fetching newest movies");
+  }
+});
+
+app.get("/api/top-movies", async (req, res) => {
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let response = await axios.get(
+      `${api_url}movie/top_rated?language=en-US&page=1`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send("Error fetching top movies");
+  }
+});
+
+app.get("/api/upcoming-movies", async (req, res) => {
+  let currentDate = new Date();
+  let allMovies = [];
+  for (let i = 1; i <= 10; i++) {
+    try {
+      let api_url = "https://api.themoviedb.org/3/";
+      let api_read_token = keys.api_read_token;
+      let response = await axios.get(
+        `${api_url}movie/upcoming?language=en-US&page=${i}`,
+        {
+          headers: {
+            Authorization: `Bearer ${api_read_token}`,
+          },
+        },
+      );
+      let data = response.data;
+      allMovies = allMovies.concat(data.results);
+    } catch (error) {
+      console.error("Error fetching upcoming movies:", error.message);
+    }
+  }
+  let upcomingMoviesFiltered = allMovies.filter((movie) => {
+    let releaseDate = new Date(movie.release_date);
+    return releaseDate > currentDate;
+  });
+  res.json(upcomingMoviesFiltered);
+});
+
+app.get("/api/top-shows", async (req, res) => {
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let response = await axios.get(
+      `${api_url}tv/popular?language=en-US&page=1`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send("Error fetching top shows");
   }
 });
