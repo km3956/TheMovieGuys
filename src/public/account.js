@@ -235,6 +235,11 @@ async function fetchFriendsLikedShows(data) {
   movieList = movieList.slice(0, 5);
 
   let row = document.getElementById("friends-liked-row");
+  let header = document.getElementById("friends-liked-title");
+  console.log("Following Count", data.followingCount);
+  if (data.followingCount > 0) {
+    header.innerHTML = "What Your Friends Liked:"
+  }
 
   for (let media of movieList) {
     let card;
