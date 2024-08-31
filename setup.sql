@@ -200,11 +200,11 @@ INSERT INTO liked (tv_id, account_id) VALUES (2000, 2);
 INSERT INTO liked (tv_id, account_id) VALUES (3000, 2);
 
 -- add liked tv shows for user3
-INSERT INTO liked (tv_id, account_id) VALUES (1000, 3);
+INSERT INTO liked (tv_id, account_id) VALUES (2000, 3);
 INSERT INTO liked (tv_id, account_id) VALUES (6000, 3);
 
 -- add liked tv shows for user4
-INSERT INTO liked (tv_id, account_id) VALUES (1000, 4);
+INSERT INTO liked (tv_id, account_id) VALUES (3000, 4);
 INSERT INTO liked (tv_id, account_id) VALUES (2000, 4);
 
 -- add liked tv shows for user5

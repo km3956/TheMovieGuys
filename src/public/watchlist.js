@@ -98,6 +98,7 @@ async function fetchWatchedContent() {
 
   async function fetchTVDetail(tv_id) {
     try {
+      console.log(tv_id);
       let response = await fetch(
         `/api/tv-details?id=${encodeURIComponent(tv_id)}`,
       );
