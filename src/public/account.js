@@ -195,9 +195,12 @@ async function fetchFriendsLikedShows(data) {
   let movieCounts = {};
   for (let user of following) {
     let userId = user.following_id;
-    let movieResponse = await fetch(`/get-liked-movies-by-id?username=${userId}`, {
-      method: "GET",
-    });
+    let movieResponse = await fetch(
+      `/get-liked-movies-by-id?username=${userId}`,
+      {
+        method: "GET",
+      },
+    );
 
     let userLikedMovies = await movieResponse.json();
 
@@ -209,12 +212,9 @@ async function fetchFriendsLikedShows(data) {
       }
     });
 
-    let tvResponse = await fetch(
-      `/get-liked-shows-by-id?username=${userId}`,
-      {
-        method: "GET",
-      },
-    );
+    let tvResponse = await fetch(`/get-liked-shows-by-id?username=${userId}`, {
+      method: "GET",
+    });
 
     let userLikedShows = await tvResponse.json();
     console.log(userLikedShows);
@@ -233,7 +233,7 @@ async function fetchFriendsLikedShows(data) {
   movieList.sort((a, b) => b.count - a.count);
   console.log(movieList);
   movieList = movieList.slice(0, 5);
-  
+
   let row = document.getElementById("friends-liked-row");
 
   for (let media of movieList) {
