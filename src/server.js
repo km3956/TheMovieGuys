@@ -534,6 +534,42 @@ app.get("/get-liked-shows", async (req, res) => {
   }
 });
 
+app.get("/get-liked-movies-by-id", async (req, res) => {
+  let username = req.query.username;
+  if (!username) {
+    return res.status(400).send("Username is required");
+  }
+
+  try {
+    let result = await pool.query(
+      `SELECT movie_id FROM liked
+      WHERE account_id = $1 AND movie_id IS NOT NULL`,
+      [username],
+    );
+    return res.json(result.rows);
+  } catch (error) {
+    return res.status(500).send("Error getting liked movies!");
+  }
+});
+
+app.get("/get-liked-shows-by-id", async (req, res) => {
+  let username = req.query.username;
+  if (!username) {
+    return res.status(400).send("Username is required");
+  }
+
+  try {
+    let result = await pool.query(
+      `SELECT tv_id FROM liked
+      WHERE account_id = $1 AND tv_id IS NOT NULL`,
+      [username],
+    );
+    return res.json(result.rows);
+  } catch (error) {
+    return res.status(500).send("Error getting liked shows!");
+  }
+});
+
 app.get("/get-user-search/:input", async (req, res) => {
   let token = req.cookies.token;
   let search = req.params.input;

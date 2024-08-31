@@ -76,6 +76,7 @@ async function fetchFollowing() {
   let result = await fetch("/get-following");
   let data = await result.json();
   displayFollowers(data);
+  fetchFriendsLikedShows(data);
 
   async function displayFollowers(data) {
     let followingButton = document.getElementById("followingButton");
@@ -186,6 +187,66 @@ async function fetchShowDetail(tv_id) {
     return data;
   } catch (error) {
     console.error("Error fetching requested show:", error);
+  }
+}
+
+async function fetchFriendsLikedShows(data) {
+  let following = data.following;
+  let movieCounts = {};
+  for (let user of following) {
+    let userId = user.following_id;
+    let movieResponse = await fetch(`/get-liked-movies-by-id?username=${userId}`, {
+      method: "GET",
+    });
+
+    let userLikedMovies = await movieResponse.json();
+
+    userLikedMovies.forEach((movie) => {
+      if (movieCounts[movie.movie_id]) {
+        movieCounts[movie.movie_id].count += 1;
+      } else {
+        movieCounts[movie.movie_id] = { movie_id: movie.movie_id, count: 1 };
+      }
+    });
+
+    let tvResponse = await fetch(
+      `/get-liked-shows-by-id?username=${userId}`,
+      {
+        method: "GET",
+      },
+    );
+
+    let userLikedShows = await tvResponse.json();
+    console.log(userLikedShows);
+
+    userLikedShows.forEach((show) => {
+      if (movieCounts[show.tv_id]) {
+        movieCounts[show.tv_id].count += 1;
+      } else {
+        movieCounts[show.tv_id] = { tv_id: show.tv_id, count: 1 };
+      }
+    });
+  }
+
+  let movieList = Object.values(movieCounts);
+
+  movieList.sort((a, b) => b.count - a.count);
+  console.log(movieList);
+  movieList = movieList.slice(0, 5);
+  
+  let row = document.getElementById("friends-liked-row");
+
+  for (let media of movieList) {
+    let card;
+    if (media.movie_id != null) {
+      let details = await fetchMovieDetail(media.movie_id);
+      card = createCard(details);
+    } else {
+      let details = await fetchShowDetail(media.tv_id);
+      card = createCard(details);
+    }
+
+    row.append(card);
   }
 }
 
