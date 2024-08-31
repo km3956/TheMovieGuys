@@ -1,37 +1,21 @@
 document.addEventListener("DOMContentLoaded", () => {
-  fetchConfig().then((config) => {
-    fetchMovies(config);
-  });
+  fetchMovies();
 });
 
 let currentPage = 1;
 let totalPages = 1;
 
-async function fetchConfig() {
+async function fetchMovies(page = 1) {
   try {
-    let response = await fetch("env.json");
-    let config = await response.json();
-    return config;
-  } catch (error) {
-    console.error("Error loading configuration:", error);
-  }
-}
-
-async function fetchMovies(config, page = 1) {
-  let { api_url, api_read_token } = config;
-  let upcomingMovies = `${api_url}movie/upcoming?language=en-US&page=${page}`;
-  try {
-    let response = await fetch(upcomingMovies, {
-      headers: {
-        Authorization: `Bearer ${api_read_token}`,
-      },
-    });
+    let response = await fetch(
+      `/api/multiple-upcoming-movies?page=${encodeURIComponent(page)}`,
+    );
     let data = await response.json();
     totalPages = data.total_pages;
     displayMovies(data.results);
-    displayPagination(config);
+    displayPagination();
   } catch (error) {
-    console.error("Error fetching movies:", error);
+    console.error("Error fetching upcoming movies:", error);
   }
 }
 
@@ -118,7 +102,7 @@ function createCard(result) {
   return card;
 }
 
-function displayPagination(config) {
+function displayPagination() {
   let paginationDiv = document.getElementById("pagination");
   paginationDiv.textContent = "";
 
@@ -146,7 +130,7 @@ function displayPagination(config) {
     e.preventDefault();
     if (currentPage > 1) {
       currentPage--;
-      fetchMovies(config, currentPage);
+      fetchMovies(currentPage);
     }
   });
   prevItem.appendChild(prevButton);
@@ -165,7 +149,7 @@ function displayPagination(config) {
     pageButton.addEventListener("click", (e) => {
       e.preventDefault();
       currentPage = i;
-      fetchMovies(config, currentPage);
+      fetchMovies(currentPage);
     });
     pageItem.appendChild(pageButton);
     paginationList.appendChild(pageItem);
@@ -184,7 +168,7 @@ function displayPagination(config) {
     e.preventDefault();
     if (currentPage < totalPages) {
       currentPage++;
-      fetchMovies(config, currentPage);
+      fetchMovies(currentPage);
     }
   });
   nextItem.appendChild(nextButton);

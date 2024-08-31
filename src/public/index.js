@@ -1,31 +1,13 @@
 document.addEventListener("DOMContentLoaded", () => {
-  fetchConfig().then((config) => {
-    fetchNewestMovies(config);
-    fetchTopMovies(config);
-    fetchUpcomingMovies(config);
-    fetchTopShows(config);
-  });
+  fetchNewestMovies();
+  fetchTopMovies();
+  fetchUpcomingMovies();
+  fetchTopShows();
 });
 
-async function fetchConfig() {
+async function fetchNewestMovies() {
   try {
-    let response = await fetch("env.json");
-    let config = await response.json();
-    return config;
-  } catch (error) {
-    console.error("Error loading configuration:", error);
-  }
-}
-
-async function fetchNewestMovies(config) {
-  let { api_url, api_read_token } = config;
-  let newMovies = `${api_url}movie/now_playing?language=en-US&page=1`;
-  try {
-    let response = await fetch(newMovies, {
-      headers: {
-        Authorization: `Bearer ${api_read_token}`,
-      },
-    });
+    let response = await fetch("/api/newest-movies");
     let data = await response.json();
     displayResults(data.results, "new-movies-container");
   } catch (error) {
@@ -33,15 +15,9 @@ async function fetchNewestMovies(config) {
   }
 }
 
-async function fetchTopMovies(config) {
-  let { api_url, api_read_token } = config;
-  let newMovies = `${api_url}movie/now_playing?language=en-US&page=1`;
+async function fetchTopMovies() {
   try {
-    let response = await fetch(newMovies, {
-      headers: {
-        Authorization: `Bearer ${api_read_token}`,
-      },
-    });
+    let response = await fetch("/api/top-movies");
     let data = await response.json();
     displayResults(data.results, "top-movies-container");
   } catch (error) {
@@ -49,40 +25,19 @@ async function fetchTopMovies(config) {
   }
 }
 
-async function fetchUpcomingMovies(config) {
-  let { api_url, api_read_token } = config;
-  let currentDate = new Date();
-  let allMovies = [];
-  for (let i = 1; i <= 10; i++) {
-    let upcomingMovies = `${api_url}movie/upcoming?language=en-US&page=${i}`;
-    try {
-      let response = await fetch(upcomingMovies, {
-        headers: {
-          Authorization: `Bearer ${api_read_token}`,
-        },
-      });
-      let data = await response.json();
-      allMovies = allMovies.concat(data.results);
-    } catch (error) {
-      console.error("Error fetching upcoming movies:", error);
-    }
+async function fetchUpcomingMovies() {
+  try {
+    let response = await fetch("/api/upcoming-movies");
+    let data = await response.json();
+    displayResults(data, "upcoming-movies-container");
+  } catch (error) {
+    console.error("Error fetching upcoming movies:", error);
   }
-  let upcomingMoviesFiltered = allMovies.filter((movie) => {
-    let releaseDate = new Date(movie.release_date);
-    return releaseDate > currentDate;
-  });
-  displayResults(upcomingMoviesFiltered, "upcoming-movies-container");
 }
 
-async function fetchTopShows(config) {
-  let { api_url, api_read_token } = config;
-  let topShows = `${api_url}tv/popular?language=en-US&page=1`;
+async function fetchTopShows() {
   try {
-    let response = await fetch(topShows, {
-      headers: {
-        Authorization: `Bearer ${api_read_token}`,
-      },
-    });
+    let response = await fetch("/api/top-shows");
     let data = await response.json();
     displayResults(data.results, "tv-shows-container");
   } catch (error) {

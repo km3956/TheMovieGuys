@@ -4,83 +4,54 @@ document.addEventListener("DOMContentLoaded", () => {
   let type = urlParams.get("type");
   console.log(search, type);
 
-  fetchConfig().then((config) => {
-    if (type === "movie") {
-      document.getElementById("search-query").textContent +=
-        " " + search + " (Movie)";
-      fetchMovies(config, search);
-    } else if (type === "tv") {
-      document.getElementById("search-query").textContent +=
-        " " + search + " (TV)";
-      fetchShows(config, search);
-    } else if (type === "person") {
-      document.getElementById("search-query").textContent +=
-        " " + search + " (Actors/Actresses)";
-      fetchPeople(config, search);
-    }
-  });
+  if (type === "movie") {
+    document.getElementById("search-query").textContent +=
+      " " + search + " (Movie)";
+    fetchMovies(search);
+  } else if (type === "tv") {
+    document.getElementById("search-query").textContent +=
+      " " + search + " (TV)";
+    fetchShows(search);
+  } else if (type === "person") {
+    document.getElementById("search-query").textContent +=
+      " " + search + " (Actors/Actresses)";
+    fetchPeople(search);
+  }
 });
 
-async function fetchConfig() {
+async function fetchMovies(search) {
   try {
-    let response = await fetch("env.json");
-    let config = await response.json();
-    return config;
-  } catch (error) {
-    console.error("Error loading configuration:", error);
-  }
-}
-
-async function fetchMovies(config, search) {
-  let { api_url, api_read_token } = config;
-  let allMovies = [];
-  let data = {};
-  for (let i = 1; i <= 10; i++) {
-    let movies = `${api_url}search/movie?&language=en-US&page=1&query=${search}`;
-    try {
-      let response = await fetch(movies, {
-        headers: {
-          Authorization: `Bearer ${api_read_token}`,
-        },
-      });
-      data = await response.json();
-      allMovies = allMovies.concat(data.results);
-    } catch (error) {
-      console.error("Error fetching upcoming movies:", error);
-    }
-  }
-  displayResults(allMovies, "results-container");
-}
-
-async function fetchShows(config, search) {
-  let { api_url, api_read_token } = config;
-  let tvShows = `${api_url}search/tv?&language=en-US&page=1&query=${search}`;
-  try {
-    let response = await fetch(tvShows, {
-      headers: {
-        Authorization: `Bearer ${api_read_token}`,
-      },
-    });
+    let response = await fetch(
+      `/api/searched-movies?query=${encodeURIComponent(search)}`,
+    );
     let data = await response.json();
-    displayResults(data.results, "results-container");
+    displayResults(data, "results-container");
   } catch (error) {
-    console.error("Error fetching top shows:", error);
+    console.error("Error fetching searched movies:", error);
   }
 }
 
-async function fetchPeople(config, search) {
-  let { api_url, api_read_token } = config;
-  let people = `${api_url}search/person?&query=${search}`;
+async function fetchShows(search) {
   try {
-    let response = await fetch(people, {
-      headers: {
-        Authorization: `Bearer ${api_read_token}`,
-      },
-    });
+    let response = await fetch(
+      `/api/searched-shows?query=${encodeURIComponent(search)}`,
+    );
     let data = await response.json();
-    displayPeopleResults(data.results, "results-container", config);
+    displayResults(data, "results-container");
   } catch (error) {
-    console.error("Error fetching Actor/Actress:", error);
+    console.error("Error fetching searched tv shows:", error);
+  }
+}
+
+async function fetchPeople(search) {
+  try {
+    let response = await fetch(
+      `/api/searched-people?query=${encodeURIComponent(search)}`,
+    );
+    let data = await response.json();
+    displayPeopleResults(data, "results-container");
+  } catch (error) {
+    console.error("Error fetching actor/actress:", error);
   }
 }
 
@@ -109,12 +80,10 @@ function displayResults(results, containerId) {
   cardContainer.appendChild(rowContainer);
 }
 
-async function displayPeopleResults(results, containerId, config) {
+async function displayPeopleResults(results, containerId) {
   let cardContainer = document.getElementById(containerId);
 
   const cardsPerSlide = 5;
-
-  let { api_url, api_read_token } = config;
 
   results.forEach(async (result) => {
     let nameElement = document.createElement("h1");
@@ -138,13 +107,8 @@ async function displayPeopleResults(results, containerId, config) {
     knownElement.textContent = "Appears in: ";
     knownElement.className = "left-aligned-text";
 
-    let credits = `${api_url}person/${actorId}/combined_credits`;
     try {
-      let response = await fetch(credits, {
-        headers: {
-          Authorization: `Bearer ${api_read_token}`,
-        },
-      });
+      let response = await fetch(`/api/combined-credits?actorID=${actorId}`);
       let data = await response.json();
 
       let rowContainer = document.createElement("div");

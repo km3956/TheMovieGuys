@@ -1,57 +1,31 @@
 document.addEventListener("DOMContentLoaded", () => {
-  fetchConfig().then((config) => {
-    let urlParams = new URLSearchParams(window.location.search);
-    let movieId = urlParams.get("id");
-    if (movieId) {
-      fetchMovieDetails(config, movieId);
-    } else {
-      console.error("No movie ID found in URL");
-    }
-  });
+  let urlParams = new URLSearchParams(window.location.search);
+  let movieId = urlParams.get("id");
+  if (movieId) {
+    fetchMovieDetails(movieId);
+  } else {
+    console.error("No movie ID found in URL");
+  }
 });
 
-async function fetchConfig() {
+async function fetchMovieDetails(movie_id) {
   try {
-    let response = await fetch("env.json");
-    let config = await response.json();
-    return config;
-  } catch (error) {
-    console.error("Error loading configuration:", error);
-  }
-}
-
-async function fetchMovieDetails(config, movieID) {
-  let { api_url, api_read_token } = config;
-  let movieDetails = `${api_url}movie/${movieID}?&language=en-US`;
-  let movieProvider = `${api_url}movie/${movieID}/watch/providers?`;
-  let castDetail = `https://api.themoviedb.org/3/movie/${movieID}/credits?&language=en-US`;
-
-  try {
-    let response = await fetch(movieDetails, {
-      headers: {
-        Authorization: `Bearer ${api_read_token}`,
-      },
-    });
-    let provider = await fetch(movieProvider, {
-      headers: {
-        Authorization: `Bearer ${api_read_token}`,
-      },
-    });
-    let cast = await fetch(castDetail, {
-      headers: {
-        Authorization: `Bearer ${api_read_token}`,
-      },
-    });
-    let reviewsResponse = await fetch(`/movie?id=${movieID}`, {
-      headers: {
-        Authorization: `Bearer ${api_read_token}`,
-      },
-    });
+    let response = await fetch(
+      `/api/movie-details?id=${encodeURIComponent(movie_id)}`,
+    );
+    let provider = await fetch(
+      `/api/movie-provider?id=${encodeURIComponent(movie_id)}`,
+    );
+    let cast = await fetch(
+      `/api/movie-cast?id=${encodeURIComponent(movie_id)}`,
+    );
+    let reviewsResponse = await fetch(`/movie?id=${movie_id}`);
     let data = await response.json();
     let providerData = await provider.json();
     let castData = await cast.json();
     let reviewsData = await reviewsResponse.json();
     createMovieDetails(data, providerData, castData, reviewsData);
+    createLikeButton(data.id);
   } catch (error) {
     console.error("Error fetching movie details:", error);
   }
@@ -245,7 +219,7 @@ function showRatingForm(movieId) {
 
 function createMovieDetails(movie, providerData, castData, reviewsData) {
   let moviesContainer = document.getElementById("movie-details");
-  moviesContainer.innerHTML = "";
+  moviesContainer.textContent = "";
 
   let buttonRow = document.createElement("div");
   buttonRow.className = "button-row";
@@ -338,7 +312,11 @@ function createMovieDetails(movie, providerData, castData, reviewsData) {
     "Genres: " + movie.genres.map((genre) => genre.name).join(", ");
 
   let overview = document.createElement("p");
-  overview.textContent = `Overview: ${movie.overview}`;
+  if (movie.overview === "") {
+    overview.textContent = `Overview: No overview available.`;
+  } else {
+    overview.textContent = `Overview: ${movie.overview}`;
+  }
 
   info.appendChild(releaseDate);
   info.appendChild(runtime);
@@ -452,8 +430,11 @@ function createMovieDetails(movie, providerData, castData, reviewsData) {
       reviewCard.className = "review-card";
 
       let reviewer = document.createElement("h3");
-      reviewer.textContent = review.author;
       reviewer.className = "review-author";
+      let reviewerLink = document.createElement("a");
+      reviewerLink.textContent = review.author;
+      reviewerLink.href = `/user/${review.author}`;
+      reviewer.appendChild(reviewerLink);
 
       let ratingContainer = createStarRating(review.rating);
       ratingContainer.className = "review-rating";
@@ -471,4 +452,97 @@ function createMovieDetails(movie, providerData, castData, reviewsData) {
 
     moviesContainer.appendChild(reviewsSection);
   }
+}
+
+async function createLikeButton(movie_id) {
+  let controls = document.getElementById("controls");
+  let likeButton = document.createElement("button");
+  likeButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart-fill" viewBox="0 0 16 16"> <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/></svg>';
+  likeButton.classList.add("btn", "btn-outline-danger", "p-2", "m-2");
+  likeButton.setAttribute("id", "like-button");
+  likeButton.setAttribute("title", "Like");
+  
+
+  try {
+    let response = await fetch("/check-login", {
+      method: "GET",
+      credentials: "include",
+    })
+
+    if (response.status == 200) {
+      let data = await fetch(`/like-status/${movie_id}`);
+      let status = await data.json();
+      let liked = status.length != 0;
+
+      if (liked) {
+        updateButtonToLiked(likeButton);
+      } else {
+        updateButtonToUnliked(likeButton);
+      }
+
+      likeButton.addEventListener("click", async ()=> {
+        if (liked) {
+          unlike(movie_id);
+          liked = false;
+          updateButtonToUnliked(likeButton);
+        }
+        else {
+          like(movie_id);
+          liked = true;
+          updateButtonToLiked(likeButton);
+        }
+      })
+    }
+    else if (response.status == 401) {
+      likeButton.disabled = true;
+    }
+    else {
+      console.log("Error occured!");
+    }
+  }
+  catch (error) {
+    console.error("Error checking login status")
+  };
+
+  controls.append(likeButton);
+}
+
+function updateButtonToLiked(button) {
+  button.setAttribute("id", "liked-button");
+  button.setAttribute("title", "Unlike");
+  button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart-fill" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/></svg>`;
+  button.classList.remove("btn-outline-danger");
+  button.classList.add("btn-danger");
+}
+
+function updateButtonToUnliked(button) {
+  button.setAttribute("id", "unliked-button");
+  button.setAttribute("title", "Like");
+  button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16"><path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"/></svg>`;
+  button.classList.remove("btn-danger");
+  button.classList.add("btn-outline-danger");
+}
+
+async function like(movie_id) {
+  let likeResponse = await fetch("/like-movie", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      movieID: movie_id,
+    }),
+  });
+}
+
+async function unlike(movie_id) {
+  let unlikeResponse = await fetch("/unlike-movie", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      movieID: movie_id,
+    }),
+  });
 }

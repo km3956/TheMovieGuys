@@ -1,55 +1,39 @@
 document.addEventListener("DOMContentLoaded", () => {
-  fetchConfig().then((config) => {
-    fetchMovies(config);
-  });
+  fetchShows();
 });
 
 let currentPage = 1;
 let totalPages = 1;
 
-async function fetchConfig() {
+async function fetchShows(page = 1) {
   try {
-    let response = await fetch("env.json");
-    let config = await response.json();
-    return config;
-  } catch (error) {
-    console.error("Error loading configuration:", error);
-  }
-}
-
-async function fetchMovies(config, page = 1) {
-  let { api_url, api_read_token } = config;
-  let trendingShows = `${api_url}trending/tv/day?language=en-US&page=${page}`;
-  try {
-    let response = await fetch(trendingShows, {
-      headers: {
-        Authorization: `Bearer ${api_read_token}`,
-      },
-    });
+    let response = await fetch(
+      `/api/multiple-tv-shows?page=${encodeURIComponent(page)}`,
+    );
     let data = await response.json();
     totalPages = data.total_pages;
-    displayMovies(data.results);
-    displayPagination(config);
+    displayShows(data.results);
+    displayPagination();
   } catch (error) {
-    console.error("Error fetching movies:", error);
+    console.error("Error fetching trending tv shows:", error);
   }
 }
 
-function displayMovies(movies) {
-  let moviesDiv = document.getElementById("movies-content");
-  moviesDiv.textContent = "";
-  moviesDiv.className = "d-flex justify-content-center flex-wrap";
+function displayShows(shows) {
+  let tvDiv = document.getElementById("shows-content");
+  tvDiv.textContent = "";
+  tvDiv.className = "d-flex justify-content-center flex-wrap";
 
-  let moviesPerRow = 5;
+  let showsPerRow = 5;
   let rowDiv = null;
 
-  movies.forEach((movie, index) => {
-    if (index % moviesPerRow === 0) {
+  shows.forEach((show, index) => {
+    if (index % showsPerRow === 0) {
       rowDiv = document.createElement("div");
       rowDiv.className = "row mb-3";
-      moviesDiv.appendChild(rowDiv);
+      tvDiv.appendChild(rowDiv);
     }
-    let card = createCard(movie);
+    let card = createCard(show);
     rowDiv.appendChild(card);
   });
 }
@@ -118,7 +102,7 @@ function createCard(result) {
   return card;
 }
 
-function displayPagination(config) {
+function displayPagination() {
   let paginationDiv = document.getElementById("pagination");
   paginationDiv.textContent = "";
 
@@ -146,7 +130,7 @@ function displayPagination(config) {
     e.preventDefault();
     if (currentPage > 1) {
       currentPage--;
-      fetchMovies(config, currentPage);
+      fetchShows(currentPage);
     }
   });
   prevItem.appendChild(prevButton);
@@ -165,7 +149,7 @@ function displayPagination(config) {
     pageButton.addEventListener("click", (e) => {
       e.preventDefault();
       currentPage = i;
-      fetchMovies(config, currentPage);
+      fetchShows(currentPage);
     });
     pageItem.appendChild(pageButton);
     paginationList.appendChild(pageItem);
@@ -184,7 +168,7 @@ function displayPagination(config) {
     e.preventDefault();
     if (currentPage < totalPages) {
       currentPage++;
-      fetchMovies(config, currentPage);
+      fetchShows(currentPage);
     }
   });
   nextItem.appendChild(nextButton);

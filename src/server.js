@@ -1,6 +1,8 @@
+require("dotenv").config();
 let express = require("express");
+let axios = require("axios");
 let app = express();
-let env = require("../env.json");
+let keys = require("../env.json");
 let port = 3000;
 let hostname;
 let databaseConfig;
@@ -394,18 +396,54 @@ app.get("/get-user", async (req, res) => {
   // return display name later on as well
 });
 
-app.get("/get-user/:id", async (req, res) => {
-  let id = req.params.id;
+app.get("/get-user-id", async (req, res) => {
+  let token = req.cookies.token;
+  if (!token || !tokenStorage[token]) {
+    return res.status(401).send("User not logged in");
+  }
+
+  let username = tokenStorage[token];
 
   try {
     let userQuery = await pool.query(
-      "SELECT username FROM accounts WHERE id = $1",
-      [id],
+      "SELECT id FROM accounts WHERE username = $1",
+      [username],
     );
-    let username = userQuery.rows[0].username;
-    return res.json({ username });
+
+    let userId = userQuery.rows[0].id;
+
+    return res.json({ id: userId });
   } catch (error) {
-    return res.status(500).send("Error getting requested username!");
+    return res.status(500).send("Error getting userId");
+  }
+});
+
+app.get("/get-user/:identifier", async (req, res) => {
+  let identifier = req.params.identifier;
+  let userQuery;
+
+  try {
+    if (!isNaN(identifier)) {
+      userQuery = await pool.query(
+        "SELECT username FROM accounts WHERE id = $1",
+        [identifier],
+      );
+    } else {
+      userQuery = await pool.query(
+        "SELECT username FROM accounts WHERE username = $1",
+        [identifier],
+      );
+    }
+
+    if (userQuery.rowCount === 0) {
+      return res.status(404).send("User not found");
+    }
+
+    let user = userQuery.rows[0];
+    return res.json(user);
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    return res.status(500).send("Error getting user data");
   }
 });
 
@@ -495,3 +533,592 @@ app.get("/get-liked-shows", async (req, res) => {
     return res.status(500).send("Error getting liked movies!");
   }
 });
+
+app.get("/get-liked-movies-by-id", async (req, res) => {
+  let username = req.query.username;
+  if (!username) {
+    return res.status(400).send("Username is required");
+  }
+
+  try {
+    let result = await pool.query(
+      `SELECT movie_id FROM liked
+      WHERE account_id = $1 AND movie_id IS NOT NULL`,
+      [username],
+    );
+    return res.json(result.rows);
+  } catch (error) {
+    return res.status(500).send("Error getting liked movies!");
+  }
+});
+
+app.get("/get-liked-shows-by-id", async (req, res) => {
+  let username = req.query.username;
+  if (!username) {
+    return res.status(400).send("Username is required");
+  }
+
+  try {
+    let result = await pool.query(
+      `SELECT tv_id FROM liked
+      WHERE account_id = $1 AND tv_id IS NOT NULL`,
+      [username],
+    );
+    return res.json(result.rows);
+  } catch (error) {
+    return res.status(500).send("Error getting liked shows!");
+  }
+});
+
+app.get("/get-user-search/:input", async (req, res) => {
+  let token = req.cookies.token;
+  let search = req.params.input;
+
+  if (!token || !tokenStorage[token]) {
+    return res.status(401).send("User not logged in");
+  }
+
+  try {
+    let result = await pool.query(
+      `SELECT id, username
+      FROM accounts
+      WHERE username LIKE $1;`,
+      [`%${search}%`],
+    );
+    return res.json(result.rows);
+  } catch (error) {
+    return res.status(500).send("Error getting search results!");
+  }
+});
+
+app.post("/add-friend", async (req, res) => {
+  let token = req.cookies.token;
+  if (!token || !tokenStorage[token]) {
+    return res.status(401).send("User not logged in");
+  }
+
+  let username = tokenStorage[token];
+  let { followingId } = req.body;
+
+  try {
+    let userQuery = await pool.query(
+      "SELECT id FROM accounts WHERE username = $1",
+      [username],
+    );
+    let userId = userQuery.rows[0].id;
+
+    await pool.query(
+      "INSERT INTO friends (follower_id, following_id) VALUES ($1, $2);",
+      [userId, followingId],
+    );
+    return res.status(200).send("Friend added");
+  } catch (error) {
+    return res.status(500).send("Error adding friend");
+  }
+});
+
+app.get("/user/:username", async (req, res) => {
+  let username = req.params.username;
+
+  try {
+    let userQuery = await pool.query(
+      "SELECT id, username FROM accounts WHERE username = $1",
+      [username],
+    );
+
+    if (userQuery.rowCount === 0) {
+      return res.status(404).send("User not found");
+    }
+
+    // If the user is found, serve the profile page
+    res.sendFile(path.join(__dirname, "../src/public/profilepage.html"));
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    return res.status(500).send("Error getting user profile");
+  }
+});
+
+app.get("/get-user-liked-movies", async (req, res) => {
+  let username = req.query.username;
+  console.log(username);
+  try {
+    let result = await pool.query(
+      `SELECT movie_id FROM liked
+      INNER JOIN accounts ON liked.account_id=accounts.id
+      WHERE accounts.username = $1 AND movie_id IS NOT NULL`,
+      [username],
+    );
+    return res.json(result.rows);
+  } catch (error) {
+    return res.status(500).send("Error getting liked movies!");
+  }
+});
+
+app.get("/get-user-liked-shows", async (req, res) => {
+  let username = req.query.username;
+
+  try {
+    let result = await pool.query(
+      `SELECT tv_id FROM liked
+      INNER JOIN accounts ON liked.account_id=accounts.id
+      WHERE accounts.username = $1 AND tv_id IS NOT NULL`,
+      [username],
+    );
+    return res.json(result.rows);
+  } catch (error) {
+    return res.status(500).send("Error getting liked movies!");
+  }
+});
+
+function extractId(username) {
+  const match = username.match(/\d+/);
+  return match ? parseInt(match[0], 10) : null;
+}
+
+app.get("/get-queue", async (req, res) => {
+  let username = req.query.username;
+
+  try {
+    let result = await pool.query(
+      `SELECT * FROM queue WHERE account_id = $1 and status = 'Queue'`,
+      [extractId(username)],
+    );
+    return res.json(result.rows);
+  } catch (error) {
+    return res.status(500).send("Error getting queue items!");
+  }
+});
+
+app.get("/api/newest-movies", async (req, res) => {
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let response = await axios.get(
+      `${api_url}movie/now_playing?language=en-US&page=1`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send("Error fetching newest movies");
+  }
+});
+
+app.get("/api/top-movies", async (req, res) => {
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let response = await axios.get(
+      `${api_url}movie/top_rated?language=en-US&page=1`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send("Error fetching top movies");
+  }
+});
+
+app.get("/api/upcoming-movies", async (req, res) => {
+  let currentDate = new Date();
+  let allMovies = [];
+  for (let i = 1; i <= 10; i++) {
+    try {
+      let api_url = "https://api.themoviedb.org/3/";
+      let api_read_token = keys.api_read_token;
+      let response = await axios.get(
+        `${api_url}movie/upcoming?language=en-US&page=${i}`,
+        {
+          headers: {
+            Authorization: `Bearer ${api_read_token}`,
+          },
+        },
+      );
+      let data = response.data;
+      allMovies = allMovies.concat(data.results);
+    } catch (error) {
+      console.error("Error fetching upcoming movies:", error.message);
+    }
+  }
+  let upcomingMoviesFiltered = allMovies.filter((movie) => {
+    let releaseDate = new Date(movie.release_date);
+    return releaseDate > currentDate;
+  });
+  res.json(upcomingMoviesFiltered);
+});
+
+app.get("/api/top-shows", async (req, res) => {
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let response = await axios.get(
+      `${api_url}tv/popular?language=en-US&page=1`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send("Error fetching top shows");
+  }
+});
+
+app.get("/api/movie-details", async (req, res) => {
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let movie_id = req.query.id;
+    let response = await axios.get(
+      `${api_url}movie/${movie_id}?language=en-US`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send("Error fetching movie details");
+  }
+});
+
+app.get("/api/tv-details", async (req, res) => {
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let tv_id = req.query.id;
+    let response = await axios.get(`${api_url}tv/${tv_id}?language=en-US`, {
+      headers: {
+        Authorization: `Bearer ${api_read_token}`,
+      },
+    });
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send("Error fetching tv details");
+  }
+});
+
+app.get("/api/movie-provider", async (req, res) => {
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let movie_id = req.query.id;
+    let response = await axios.get(
+      `${api_url}movie/${movie_id}/watch/providers?`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send("Error fetching movie providers");
+  }
+});
+
+app.get("/api/tv-provider", async (req, res) => {
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let tv_id = req.query.id;
+    let response = await axios.get(`${api_url}tv/${tv_id}/watch/providers?`, {
+      headers: {
+        Authorization: `Bearer ${api_read_token}`,
+      },
+    });
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send("Error fetching tv providers");
+  }
+});
+
+app.get("/api/movie-cast", async (req, res) => {
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let movie_id = req.query.id;
+    let response = await axios.get(
+      `${api_url}movie/${movie_id}/credits?&language=en-US`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send("Error fetching movie cast");
+  }
+});
+
+app.get("/api/tv-cast", async (req, res) => {
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let tv_id = req.query.id;
+    let response = await axios.get(
+      `${api_url}tv/${tv_id}/credits?&language=en-US`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send("Error fetching tv cast");
+  }
+});
+
+app.get("/api/multiple-new-movies", async (req, res) => {
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let page = req.query.page;
+    let response = await axios.get(
+      `${api_url}movie/now_playing?language=en-US&page=${page}`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send("Error fetching multiple new movies");
+  }
+});
+
+app.get("/api/multiple-top-movies", async (req, res) => {
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let page = req.query.page;
+    let response = await axios.get(
+      `${api_url}movie/top_rated?language=en-US&page=${page}`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send("Error fetching multiple top rated movies");
+  }
+});
+
+app.get("/api/multiple-upcoming-movies", async (req, res) => {
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let page = req.query.page;
+    let response = await axios.get(
+      `${api_url}movie/upcoming?language=en-US&page=${page}`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send("Error fetching multiple upcoming movies");
+  }
+});
+
+app.get("/api/multiple-tv-shows", async (req, res) => {
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let page = req.query.page;
+    let response = await axios.get(
+      `${api_url}trending/tv/day?language=en-US&page=${page}`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send("Error fetching multiple trending tv shows");
+  }
+});
+
+app.get("/api/searched-movies", async (req, res) => {
+  let allMovies = [];
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let search = req.query.query;
+    let response = await axios.get(
+      `${api_url}search/movie?&language=en-US&page=1&query=${search}`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    let data = response.data;
+    allMovies = allMovies.concat(data.results);
+  } catch (error) {
+    console.error("Error fetching searched movies:", error.message);
+  }
+  res.json(allMovies);
+});
+
+app.get("/api/searched-shows", async (req, res) => {
+  let allShows = [];
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let search = req.query.query;
+    let response = await axios.get(
+      `${api_url}search/tv?&language=en-US&page=1&query=${search}`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    let data = response.data;
+    allShows = allShows.concat(data.results);
+  } catch (error) {
+    console.error("Error fetching searched shows:", error.message);
+  }
+  res.json(allShows);
+});
+
+app.get("/api/searched-people", async (req, res) => {
+  let allPeople = [];
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let search = req.query.query;
+    let response = await axios.get(
+      `${api_url}search/person?&language=en-US&page=1&query=${search}`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    let data = response.data;
+    allPeople = allPeople.concat(data.results);
+  } catch (error) {
+    console.error("Error fetching searched people:", error.message);
+  }
+  res.json(allPeople);
+});
+
+app.get("/api/combined-credits", async (req, res) => {
+  try {
+    let api_url = "https://api.themoviedb.org/3/";
+    let api_read_token = keys.api_read_token;
+    let actorID = req.query.actorID;
+    let response = await axios.get(
+      `${api_url}person/${actorID}/combined_credits`,
+      {
+        headers: {
+          Authorization: `Bearer ${api_read_token}`,
+        },
+      },
+    );
+    res.json(response.data);
+  } catch (error) {
+    console.error("Error fetching combined credits:", error.message);
+  }
+});
+
+app.get("/like-status/:movieid", async (req, res) => {
+  let movieID = req.params.movieid;
+
+  let token = req.cookies.token;
+  if (!token || !tokenStorage[token]) {
+    return res.status(401).send("User not logged in");
+  }
+
+  let username = tokenStorage[token];
+
+  try {
+    let userQuery = await pool.query(
+      "SELECT id FROM accounts WHERE username = $1",
+      [username],
+    );
+    let userID = userQuery.rows[0].id;
+    
+    let result = await pool.query(
+      `SELECT * FROM liked
+      WHERE account_id = $1 AND movie_id = $2`,
+      [userID, movieID],
+    );
+    return res.json(result.rows);
+  } catch (error) {
+    return res.status(500).send("Error getting liked status!");
+  }
+});
+
+app.post("/like-movie", async (req, res) => {
+  let token = req.cookies.token;
+  if (!token || !tokenStorage[token]) {
+    return res.status(401).send("User not logged in");
+  }
+
+  let username = tokenStorage[token];
+  let { movieID } = req.body;
+
+  try {
+    let userQuery = await pool.query(
+      "SELECT id FROM accounts WHERE username = $1",
+      [username],
+    );
+    let userID = userQuery.rows[0].id;
+
+    await pool.query(
+      "INSERT INTO liked (movie_id, account_id) VALUES ($1, $2)",
+      [movieID, userID],
+    );
+
+    return res.status(200).send("Liked Movie");
+  } catch (error) {
+    return res.status(500).send("Error liking movie");
+  }
+});
+
+app.post("/unlike-movie", async (req, res) => {
+  let token = req.cookies.token;
+  if (!token || !tokenStorage[token]) {
+    return res.status(401).send("User not logged in");
+  }
+
+  let username = tokenStorage[token];
+  let { movieID } = req.body;
+
+  try {
+    let userQuery = await pool.query(
+      "SELECT id FROM accounts WHERE username = $1",
+      [username],
+    );
+    let userID = userQuery.rows[0].id;
+
+    await pool.query(
+      "DELETE FROM liked WHERE movie_id=$1 and account_id=$2",
+      [movieID, userID],
+    );
+
+    return res.status(200).send("Unliked Movie");
+  } catch (error) {
+    return res.status(500).send("Error unliking movie");
+  }
+});
+
