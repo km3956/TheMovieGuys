@@ -23,7 +23,7 @@ loginForm.addEventListener("submit", (event) => {
       let message = document.getElementById("message");
       switch (text) {
         case "Login successful":
-          location.href = "./index.html";
+          location.assign("./index.html");
           break;
         case "Account not found":
         case "Incorrect password":
@@ -45,5 +45,5 @@ loginForm.addEventListener("submit", (event) => {
 
 let createButton = document.getElementById("create-account");
 createButton.addEventListener("click", () => {
-  location.href = "./create.html";
+  location.assign("./create.html");
 });

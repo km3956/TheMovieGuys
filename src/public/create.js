@@ -23,7 +23,7 @@ createForm.addEventListener("submit", (event) => {
       let message = document.getElementById("message");
       switch (text) {
         case "Account creation successful":
-          location.href = "./index.html";
+          location.assign("./index.html");
           break;
         case "Username already taken":
           message.textContent = "Username already taken";
