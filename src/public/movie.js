@@ -457,17 +457,17 @@ function createMovieDetails(movie, providerData, castData, reviewsData) {
 async function createLikeButton(movie_id) {
   let controls = document.getElementById("controls");
   let likeButton = document.createElement("button");
-  likeButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart-fill" viewBox="0 0 16 16"> <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/></svg>';
+  likeButton.innerHTML =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart-fill" viewBox="0 0 16 16"> <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/></svg>';
   likeButton.classList.add("btn", "btn-outline-danger", "p-2", "m-2");
   likeButton.setAttribute("id", "like-button");
   likeButton.setAttribute("title", "Like");
-  
 
   try {
     let response = await fetch("/check-login", {
       method: "GET",
       credentials: "include",
-    })
+    });
 
     if (response.status == 200) {
       let data = await fetch(`/like-status/${movie_id}`);
@@ -480,29 +480,25 @@ async function createLikeButton(movie_id) {
         updateButtonToUnliked(likeButton);
       }
 
-      likeButton.addEventListener("click", async ()=> {
+      likeButton.addEventListener("click", async () => {
         if (liked) {
           unlike(movie_id);
           liked = false;
           updateButtonToUnliked(likeButton);
-        }
-        else {
+        } else {
           like(movie_id);
           liked = true;
           updateButtonToLiked(likeButton);
         }
-      })
-    }
-    else if (response.status == 401) {
+      });
+    } else if (response.status == 401) {
       likeButton.disabled = true;
-    }
-    else {
+    } else {
       console.log("Error occured!");
     }
+  } catch (error) {
+    console.error("Error checking login status");
   }
-  catch (error) {
-    console.error("Error checking login status")
-  };
 
   controls.append(likeButton);
 }

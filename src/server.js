@@ -180,6 +180,16 @@ app.post("/login", async (req, res) => {
   return res.cookie("token", token, cookieOptions).send("Login successful");
 });
 
+app.get("/logout", (req, res) => {
+  let token = req.cookies.token;
+  if (!token || !tokenStorage[token]) {
+    return res.send();
+  }
+
+  delete tokenStorage[token];
+  return res.send();
+});
+
 // for reviews on movie landing page
 async function getMovieReviews(movieId, username) {
   try {
@@ -1056,7 +1066,7 @@ app.get("/like-status/:movieid", async (req, res) => {
       [username],
     );
     let userID = userQuery.rows[0].id;
-    
+
     let result = await pool.query(
       `SELECT * FROM liked
       WHERE account_id = $1 AND movie_id = $2`,
@@ -1111,14 +1121,13 @@ app.post("/unlike-movie", async (req, res) => {
     );
     let userID = userQuery.rows[0].id;
 
-    await pool.query(
-      "DELETE FROM liked WHERE movie_id=$1 and account_id=$2",
-      [movieID, userID],
-    );
+    await pool.query("DELETE FROM liked WHERE movie_id=$1 and account_id=$2", [
+      movieID,
+      userID,
+    ]);
 
     return res.status(200).send("Unliked Movie");
   } catch (error) {
     return res.status(500).send("Error unliking movie");
   }
 });
-

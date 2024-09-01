@@ -117,6 +117,24 @@
 
 <script>
   $(document).ready(function () {
-    $("#nav-content").load("../components/nav.html");
+    $("#nav-content").load("../components/nav.html", () => {
+      setLogoutButton();
+    });
   });
+
+  async function setLogoutButton() {
+    let response = await fetch("/check-login", {
+      method: "GET",
+      credentials: "include",
+    });
+
+    if (response.ok) {
+      let button = document.getElementById("login-button");
+      button.textContent = "Logout";
+      button.href = "./index.html";
+      button.addEventListener("click", async () => {
+        let result = await fetch("/logout");
+      });
+    }
+  }
 </script>
