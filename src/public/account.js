@@ -234,12 +234,22 @@ async function fetchFriendsLikedShows(data) {
   console.log(movieList);
   movieList = movieList.slice(0, 5);
 
-  let row = document.getElementById("friends-liked-row");
+  const cardsPerSlide = 5;
+  let carouselInner = document.getElementById("friends-liked");
+
   let header = document.getElementById("friends-liked-title");
   console.log("Following Count", data.followingCount);
   if (data.followingCount > 0) {
-    header.innerHTML = "What Your Friends Liked:"
+    header.innerHTML = "What Your Friends Liked:";
   }
+
+  let carouselItem = document.createElement("div");
+  carouselItem.className = "carousel-item active";
+  carouselInner.appendChild(carouselItem);
+
+  let childRow = document.createElement("div");
+  childRow.className = "row";
+  carouselItem.appendChild(childRow);
 
   for (let media of movieList) {
     let card;
@@ -251,7 +261,7 @@ async function fetchFriendsLikedShows(data) {
       card = createCard(details);
     }
 
-    row.append(card);
+    carouselInner.lastChild.firstChild.appendChild(card);
   }
 }
 
