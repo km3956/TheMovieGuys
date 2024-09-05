@@ -17,33 +17,36 @@
     <link rel="stylesheet" href="./css/style.css" />
   </head>
   <body>
-    <body class="bg-dark">
+    <body class="bg-dark login-body">
       <div id="nav-content"></div>
-      <div class="login-block">
-        <h2>Sign In</h2>
-        <form id="login-form">
-          <label for="username">Username:</label>
-          <input
-            id="username"
-            type="text"
-            name="username"
-            placeholder="Enter username here"
-          />
-          <label for="password">Password:</label>
-          <input
-            id="password"
-            type="text"
-            name="password"
-            placeholder="Enter password here"
-          />
-          <br /><br />
-          <div class="login-submit">
-            <button id="login">Sign in</button>
-          </div>
-        </form>
-        <br />
-        <h4>Not registered for an account?</h4>
-        <button id="create-account">Register here</button>
+      <div class="login-container">
+        <div class="login-block">
+          <img class="mg-4" src="./images/mglogo.png" height="100" width="100" alt="mglogo">
+          <form id="login-form">
+            <input
+              id="username"
+              type="text"
+              name="username"
+              class="form-control p-2 mt-2 mb-2"
+              placeholder="Username"
+            />
+            <input
+              id="password"
+              type="text"
+              name="password"
+              class="form-control p-2 mt-2 mb-2"
+              placeholder="Password"
+            />
+            <br /><br />
+            <div class="login-submit">
+              <button class="w-100 btn btn-lg btn-primary" id="login">Login</button>
+            </div>
+          </form>
+          <br />
+          <p class="m-0">Not Registered?</p>
+          <button class="btn btn-link" id="create-account">Sign up</button>
+          <p id="message" class="text-danger"></p>
+        </div>
       </div>
       <script src="login.js"></script>
     </body>
