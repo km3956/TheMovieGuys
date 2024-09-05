@@ -1078,6 +1078,35 @@ app.get("/like-status/:movieid", async (req, res) => {
   }
 });
 
+app.get("/like-status-tv/:tvid", async (req, res) => {
+  let tvID = req.params.tvid;
+
+  let token = req.cookies.token;
+  if (!token || !tokenStorage[token]) {
+    return res.status(401).send("User not logged in");
+  }
+
+  let username = tokenStorage[token];
+
+  try {
+    let userQuery = await pool.query(
+      "SELECT id FROM accounts WHERE username = $1",
+      [username],
+    );
+    let userID = userQuery.rows[0].id;
+
+    let result = await pool.query(
+      `SELECT * FROM liked
+      WHERE account_id = $1 AND tv_id = $2`,
+      [userID, tvID],
+    );
+    return res.json(result.rows);
+  } catch (error) {
+    return res.status(500).send("Error getting liked status!");
+  }
+});
+
+
 app.post("/like-movie", async (req, res) => {
   let token = req.cookies.token;
   if (!token || !tokenStorage[token]) {
@@ -1123,6 +1152,60 @@ app.post("/unlike-movie", async (req, res) => {
 
     await pool.query("DELETE FROM liked WHERE movie_id=$1 and account_id=$2", [
       movieID,
+      userID,
+    ]);
+
+    return res.status(200).send("Unliked Movie");
+  } catch (error) {
+    return res.status(500).send("Error unliking movie");
+  }
+});
+
+app.post("/like-tv", async (req, res) => {
+  let token = req.cookies.token;
+  if (!token || !tokenStorage[token]) {
+    return res.status(401).send("User not logged in");
+  }
+
+  let username = tokenStorage[token];
+  let { tvID } = req.body;
+
+  try {
+    let userQuery = await pool.query(
+      "SELECT id FROM accounts WHERE username = $1",
+      [username],
+    );
+    let userID = userQuery.rows[0].id;
+
+    await pool.query(
+      "INSERT INTO liked (tv_id, account_id) VALUES ($1, $2)",
+      [tvID, userID],
+    );
+
+    return res.status(200).send("Liked Movie");
+  } catch (error) {
+    return res.status(500).send("Error liking movie");
+  }
+});
+
+app.post("/unlike-tv", async (req, res) => {
+  let token = req.cookies.token;
+  if (!token || !tokenStorage[token]) {
+    return res.status(401).send("User not logged in");
+  }
+
+  let username = tokenStorage[token];
+  let { tvID } = req.body;
+
+  try {
+    let userQuery = await pool.query(
+      "SELECT id FROM accounts WHERE username = $1",
+      [username],
+    );
+    let userID = userQuery.rows[0].id;
+
+    await pool.query("DELETE FROM liked WHERE tv_id=$1 and account_id=$2", [
+      tvID,
       userID,
     ]);
 
