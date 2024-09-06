@@ -14,8 +14,24 @@ async function fetchWatchedContent() {
     });
 
     let data = await result.json();
-
-    displayWatchlists(data);
+    if (data["details"].length != 0) {
+      displayWatchlists(data);
+    }
+    else 
+    {
+      let statusDiv = document.getElementById("status");
+      let p = document.createElement("p");
+      p.textContent = "Please add movies to create watchlists!";
+      p.classList.add(
+        "p-3",
+        "text-primary-emphasis",
+        "bg-danger-subtle",
+        "border",
+        "border-danger-subtle",
+        "rounded-3",
+      );
+      statusDiv.append(p);
+    }
   } else {
     let statusDiv = document.getElementById("status");
     let p = document.createElement("p");
