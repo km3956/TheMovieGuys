@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let urlParams = new URLSearchParams(window.location.search);
   let search = urlParams.get("search");
   let type = urlParams.get("type");
-  console.log(search, type);
 
   if (type === "movie") {
     document.getElementById("search-query").textContent +=
@@ -91,7 +90,6 @@ async function displayPeopleResults(results, containerId) {
     nameElement.className = "left-aligned-text";
 
     let actorId = result.id;
-    console.log(result.name, result.id);
 
     let imgElement = document.createElement("img");
     if (result.profile_path === null) {
