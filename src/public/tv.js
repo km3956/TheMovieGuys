@@ -154,19 +154,21 @@ function createStarRating(rating) {
   return starContainer;
 }
 
-function showRatingForm() {
+function showRatingForm(tvId) {
   let modal = document.createElement("div");
   modal.className = "modal";
+  modal.id = "modal-show"
 
   let modalContent = document.createElement("div");
   modalContent.className = "modal-content";
+  modalContent.id = "modal-content-show";
 
   let closeButton = document.createElement("span");
   closeButton.className = "close-button";
   closeButton.textContent = "×";
 
   let header = document.createElement("h2");
-  header.textContent = "Rate this Movie";
+  header.textContent = "Rate this Show";
 
   let ratingLabel = document.createElement("label");
   ratingLabel.setAttribute("for", "rating");
@@ -203,10 +205,16 @@ function showRatingForm() {
 
   modal.appendChild(modalContent);
   document.body.appendChild(modal);
+  console.log(tvId);
 
   submitButton.addEventListener("click", async () => {
     let rating = ratingInput.value;
     let comment = commentTextarea.value;
+
+    if (rating < 1 || rating > 5) {
+      alert("Please enter a rating between 1 and 5.");
+      return;
+    }
 
     let response = await fetch("/check-login", {
       method: "GET",
@@ -214,7 +222,7 @@ function showRatingForm() {
     });
 
     if (response.ok) {
-      let reviewResponse = await fetch("/submit-review", {
+      let reviewResponse = await fetch("/submit-review-show", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -229,12 +237,46 @@ function showRatingForm() {
       if (reviewResponse.ok) {
         alert("Review submitted successfully!");
         modal.remove();
+        window.location.reload();
+      } else if (reviewResponse.status === 409) {
+        alert("You have already reviewed this show.");
       } else {
         alert("Error submitting review. Please try again later.");
       }
     } else {
       alert("You need to log in to rate this movie.");
     }
+    // let rating = ratingInput.value;
+    // let comment = commentTextarea.value;
+
+    // let response = await fetch("/check-login", {
+    //   method: "GET",
+    //   credentials: "include",
+    // });
+
+    // if (response.ok) {
+    //   console.log(tvId);
+    //   let reviewResponse = await fetch("/submit-review", {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify({
+    //       rating: rating,
+    //       comment: comment,
+    //       tvId: tvId,
+    //     }),
+    //   });
+
+    //   if (reviewResponse.ok) {
+    //     alert("Review submitted successfully!");
+    //     modal.remove();
+    //   } else {
+    //     alert("Error submitting review. Please try again later.");
+    //   }
+    // } else {
+    //   alert("You need to log in to rate this movie.");
+    // }
   });
 
   closeButton.addEventListener("click", () => {
@@ -272,7 +314,7 @@ function createTVDetails(tv, providerData, castData, reviewsData) {
   controls.appendChild(rateButton);
 
   rateButton.addEventListener("click", () => {
-    showRatingForm(movie.id);
+    showRatingForm(tv.id);
   });
 
   dropdown.addEventListener("change", async (event) => {
@@ -291,7 +333,7 @@ function createTVDetails(tv, providerData, castData, reviewsData) {
           },
           body: JSON.stringify({
             status: selectedOption,
-            movieId: movie.id,
+            tvId: tv.id,
           }),
         });
         if (reviewResponse.ok) {
