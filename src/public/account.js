@@ -13,8 +13,23 @@ document.addEventListener("DOMContentLoaded", async () => {
       fetchSearchFriends(input.value);
     });
   } else {
-    // redirect user to login page
-    location.href = "./login.html";
+    // alert the user to login
+    let statusDiv = document.getElementById("status");
+    let p = document.createElement("p");
+    p.textContent = "Please login to view your account!";
+    p.classList.add(
+      "p-3",
+      "text-primary-emphasis",
+      "bg-danger-subtle",
+      "border",
+      "border-danger-subtle",
+      "rounded-3",
+    );
+    statusDiv.append(p);
+
+    document.getElementById("user-content").style.display = "none";
+    document.getElementById("movie-container").style.display = "none";
+    document.getElementById("tv-container").style.display = "none";
   }
 });
 
