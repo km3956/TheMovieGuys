@@ -214,7 +214,6 @@ async function fetchFriendsLikedShows(data) {
     });
 
     let userLikedShows = await tvResponse.json();
-    console.log(userLikedShows);
 
     userLikedShows.forEach((show) => {
       if (movieCounts[show.tv_id]) {
@@ -228,14 +227,12 @@ async function fetchFriendsLikedShows(data) {
   let movieList = Object.values(movieCounts);
 
   movieList.sort((a, b) => b.count - a.count);
-  console.log(movieList);
   movieList = movieList.slice(0, 5);
 
   const cardsPerSlide = 5;
   let carouselInner = document.getElementById("friends-liked");
 
   let header = document.getElementById("friends-liked-title");
-  console.log("Following Count", data.followingCount);
   if (data.followingCount > 0) {
     header.innerHTML = "What Your Friends Liked:";
   }
@@ -332,8 +329,6 @@ async function fetchSearchFriends(input) {
 
     let currentUser = await fetch("/get-user-id");
     let currentUserId = (await currentUser.json()).id;
-
-    console.log(currentUserId);
 
     let followingIds = [];
     for (let i = 0; i < currentFriends.length; i++) {
