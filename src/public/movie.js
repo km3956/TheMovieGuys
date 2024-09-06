@@ -185,7 +185,7 @@ function showRatingForm(movieId) {
     });
 
     if (response.ok) {
-      let reviewResponse = await fetch("/submit-review", {
+      let reviewResponse = await fetch("/submit-review-movie", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
