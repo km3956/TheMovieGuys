@@ -38,9 +38,6 @@ async function fetchUserInfo() {
 
     let usernameData = document.getElementById("user-name");
     usernameData.textContent = data.username;
-
-    let displayNameData = document.getElementById("display-name");
-    displayNameData.textContent = "{placeholder}";
   }
 }
 
