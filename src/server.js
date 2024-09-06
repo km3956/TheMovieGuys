@@ -1141,7 +1141,6 @@ app.get("/like-status-tv/:tvid", async (req, res) => {
   }
 });
 
-
 app.post("/like-movie", async (req, res) => {
   let token = req.cookies.token;
   if (!token || !tokenStorage[token]) {
@@ -1212,10 +1211,10 @@ app.post("/like-tv", async (req, res) => {
     );
     let userID = userQuery.rows[0].id;
 
-    await pool.query(
-      "INSERT INTO liked (tv_id, account_id) VALUES ($1, $2)",
-      [tvID, userID],
-    );
+    await pool.query("INSERT INTO liked (tv_id, account_id) VALUES ($1, $2)", [
+      tvID,
+      userID,
+    ]);
 
     return res.status(200).send("Liked Movie");
   } catch (error) {

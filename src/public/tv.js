@@ -157,7 +157,7 @@ function createStarRating(rating) {
 function showRatingForm(tvId) {
   let modal = document.createElement("div");
   modal.className = "modal";
-  modal.id = "modal-show"
+  modal.id = "modal-show";
 
   let modalContent = document.createElement("div");
   modalContent.className = "modal-content";

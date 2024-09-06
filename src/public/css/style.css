@@ -326,7 +326,9 @@ body {
   background-color: rgba(33, 37, 41);
   padding: 20px;
   border-radius: 15px;
-  box-shadow: 8px 10px 20px #58cbee, -8px -10px 20px #f42e44;
+  box-shadow:
+    8px 10px 20px #58cbee,
+    -8px -10px 20px #f42e44;
   width: 300px;
   text-align: center;
 }
