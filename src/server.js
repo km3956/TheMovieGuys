@@ -277,7 +277,7 @@ app.get("/check-login", (req, res) => {
   }
 });
 
-app.post("/submit-review", async (req, res) => {
+app.post("/submit-review-movie", async (req, res) => {
   let token = req.cookies.token;
   if (!token || !tokenStorage[token]) {
     return res.status(401).send("User not logged in");
@@ -305,6 +305,41 @@ app.post("/submit-review", async (req, res) => {
     await pool.query(
       "INSERT INTO reviews (movie_id, account_id, rating, comment) VALUES ($1, $2, $3, $4)",
       [movieId, userId, rating, comment],
+    );
+    return res.status(200).send("Review submitted");
+  } catch (error) {
+    return res.status(500).send("Error submitting review");
+  }
+});
+
+app.post("/submit-review-show", async (req, res) => {
+  let token = req.cookies.token;
+  if (!token || !tokenStorage[token]) {
+    return res.status(401).send("User not logged in");
+  }
+
+  let username = tokenStorage[token];
+  let { rating, comment, tvId } = req.body;
+
+  try {
+    let userQuery = await pool.query(
+      "SELECT id FROM accounts WHERE username = $1",
+      [username],
+    );
+    let userId = userQuery.rows[0].id;
+
+    let existingReviewQuery = await pool.query(
+      "SELECT * FROM reviews WHERE account_id = $1 AND tv_id = $2",
+      [userId, tvId],
+    );
+
+    if (existingReviewQuery.rowCount > 0) {
+      return res.status(409).send("You have already reviewed this show");
+    }
+
+    await pool.query(
+      "INSERT INTO reviews (tv_id, account_id, rating, comment) VALUES ($1, $2, $3, $4)",
+      [tvId, userId, rating, comment],
     );
     return res.status(200).send("Review submitted");
   } catch (error) {
