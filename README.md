@@ -1,4 +1,4 @@
-The Movie Guys
+**The Movie Guys**
 
 Asiful Islam, ami52@drexel.edu  
 Justin Gao, jlg479@drexel.edu  
